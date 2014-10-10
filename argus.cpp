@@ -4,7 +4,6 @@
 using namespace std;
 
 typedef struct {
-	string 	cpuname; 	
 	int	uTime,		//user mode time
 		nTime,		//nice mode time
 		sTime,		//system mode time
@@ -15,6 +14,7 @@ typedef struct {
 		ssTime,		//stealstolen time,
 		guestTime,	//guest time
 		totalTime;	//summary of all the time
+	string 	cpuname; 	
 } STATDATA;
 
 int main()
@@ -23,7 +23,7 @@ int main()
 	getCPUusage();
 	return 0;
 }
-STATDATA* getDataFromStat(string filename)
+bool getDataFromStat(STATDATA& statData,string filename)
 {
 	ifstream infile(filename.c_str());
 	
@@ -31,33 +31,45 @@ STATDATA* getDataFromStat(string filename)
 	{
 		cerr 	<< "error: unable ro open input file :"
 			<< infile << endl;
-		return NULL;
+		return false;
 	}
 	
-	STATDATA* statPtr = new STATDATA;
-	infile 	>> statPtr-> cpuname 
-		>> statPtr-> uTime
-		>> statPtr-> nTime
-		>> statPtr-> sTime
-		>> statPtr-> idleTime
-		>> statPtr-> iowaitTime
-		>> statPtr-> irqTime
-		>> statPtr-> sirqTime
-		>> statPtr-> ssTime
-		>> statPtr-> guestTime;
+	infile 	>> statData. cpuname 
+		>> statData. uTime
+		>> statData. nTime
+		>> statData. sTime
+		>> statData. idleTime
+		>> statData. iowaitTime
+		>> statData. irqTime
+		>> statData. sirqTime
+		>> statData. ssTime
+		>> statData. guestTime;
 	
-	statPtr->totalTime	= statPtr->uTime
-				+ statPtr-> nTime
-				+ statPtr-> sTime
-				+ statPtr-> idleTime
-				+ statPtr-> iowaitTime
-				+ statPtr-> irqTime
-				+ statPtr-> sirqTime
-				+ statPtr-> ssTime
-				+ statPtr-> guestTime;
+	statData.totalTime	= statData. uTime
+				+ statData. nTime
+				+ statData. sTime
+				+ statData. idleTime
+				+ statData. iowaitTime
+				+ statData. irqTime
+				+ statData. sirqTime
+				+ statData. ssTime
+				+ statData. guestTime;
+
+#ifdef __DEBUG__	
+	cout 	<< statData. cpuname	<<' ' 
+		<< statData. uTime	<<' '
+		<< statData. nTime	<<' '
+		<< statData. sTime	<<' '
+		<< statData. idleTime	<<' '
+		<< statData. iowaitTime	<<' '
+		<< statData. irqTime	<<' '
+		<< statData. sirqTime	<<' '
+		<< statData. ssTime	<<' '
+		<< statData. guestTime 	<< endl;
+#endif
 
 	infile.close();
-	return statPtr;
+	return true;
 }
 int getCPUusage()
 {
@@ -65,33 +77,24 @@ int getCPUusage()
 	string filename="/proc/stat";
 	int totalCPUtime_delta;
 	int idleTime_delta;
-	int cpuusage;
-	STATDATA* statDataPtr_t1 = getDataFromStat(filename.c_str());
-	if(statDataPtr_t1 == NULL) return -1;
+	int cpuusage = 0 ;
+	STATDATA statData_t1,statData_t2;
+
+	bool b_got_t1 = getDataFromStat(statData_t1,filename.c_str());
+	if( b_got_t1 == false) return -1;
 
 	sleep(1);
 
-	STATDATA* statDataPtr_t2 = getDataFromStat(filename.c_str());
-	if(statDataPtr_t2 == NULL) return -1;
+	bool b_got_t2 =  getDataFromStat(statData_t2,filename.c_str());
+	if( b_got_t2 == false) return -1;
 	
-	totalCPUtime_delta = statDataPtr_t2->totalTime - statDataPtr_t1->totalTime ;
-	idleTime_delta = statDataPtr_t2-> idleTime - statDataPtr_t1-> idleTime;
+	totalCPUtime_delta = statData_t2.totalTime - statData_t1.totalTime ;
+	idleTime_delta = statData_t2.idleTime - statData_t1.idleTime;
 	
 	if(totalCPUtime_delta != 0)
 		cpuusage= 100 * (totalCPUtime_delta - idleTime_delta) / totalCPUtime_delta;
-	cout << cpuusage << endl;
-
 	
-//	cout 	<< cpuname	<<' ' 
-//		<< uTime        <<' '
-//		<< nTime        <<' '
-//		<< sTime        <<' '
-//		<< idleTime     <<' '
-//		<< iowaitTime   <<' '
-//		<< irqTime      <<' '
-//		<< sirqTime     <<' '
-//		<< ssTime       <<' '
-//		<< guestTime << endl;
-	delete statDataPtr_t1,statDataPtr_t2;
+	cout << cpuusage << endl;
+	
 	return 0;
 }
