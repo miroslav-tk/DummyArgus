@@ -1,58 +1,16 @@
-
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-using namespace std;
+#include "CPUusage.h"
 
-class CPUusage
+bool CPUusage::getDataFromStat (const std::string& filename)
 {
-public:
-	CPUusage();
-	~CPUusage();
-
-	bool getDataFromStat(string filename);
-	int getCPUusage();
-
-	int getTotalTime();
-	int getIdleTime();
-
-private:
-	int	uTime,		//user mode time
-		nTime,		//nice mode time
-		sTime,		//system mode time
-		idleTime,	//idle time
-		iowaitTime,	//iowait time
-		irqTime,	//irq time
-		sirqTime,	//softirq time
-		ssTime,		//stealstolen time,
-		guestTime,	//guest time
-		totalTime;	//summary of all the time
-	string 	cpuname; 	
-};
-
-CPUusage::CPUusage()
-{
-	this-> uTime  		= 0 ;		
-	this-> nTime	 	= 0 ; 
-	this-> sTime	 	= 0 ; 
-	this-> idleTime	 	= 0 ;
-	this-> iowaitTime	= 0 ;	
-	this-> irqTime	 	= 0 ;
-	this-> sirqTime	 	= 0 ;
-	this-> ssTime	 	= 0 ; 
-	this-> guestTime 	= 0 ;       
-	this-> totalTime	= 0 ;	
-}
-CPUusage::~CPUusage() {}
-
-bool CPUusage::getDataFromStat (string filename)
-{
-	ifstream infile(filename.c_str());
+	std::ifstream infile(filename.c_str());
 	
 	if(!infile)
 	{
-		cerr 	<< "error: unable ro open input file :"
-			<< infile << endl;
+		std::cerr 	<< "error: unable ro open input file :"
+				<< infile << std::endl;
 		return false;
 	}
 	
@@ -78,48 +36,49 @@ bool CPUusage::getDataFromStat (string filename)
 			+ guestTime;
 
 #ifdef __DEBUG__	
-	cout 	<< cpuname	<<' ' 
-		<< uTime	<<' '
-		<< nTime	<<' '
-		<< sTime	<<' '
-		<< idleTime	<<' '
-		<< iowaitTime	<<' '
-		<< irqTime	<<' '
-		<< sirqTime	<<' '
-		<< ssTime	<<' '
-		<< guestTime 	<< endl;
+	std::cout 	<< cpuname	<<' ' 
+			<< uTime	<<' '
+			<< nTime	<<' '
+			<< sTime	<<' '
+			<< idleTime	<<' '
+			<< iowaitTime	<<' '
+			<< irqTime	<<' '
+			<< sirqTime	<<' '
+			<< ssTime	<<' '
+			<< guestTime 	<< std::endl;
 #endif
 
 	infile.close();
 	return true;
 }
-int CPUusage::getCPUusage()
+int CPUusage::calCPUusage()
+//calculate cpuusage
 {
 
-	string filename="/proc/stat";
+	const std::string filename="/proc/stat";
 	int totalCPUtime_delta;
 	int idleTime_delta;
-	int cpuusage = 0 ;
+	int cpuUsedPerc = 0 ;
 
-	bool b_got_t1 	= this-> getDataFromStat(filename.c_str());
-	int totalTime_t1= this-> getTotalTime();
-	int idleTime_t1 = this-> getIdleTime();
+	bool b_got_t1 	= getDataFromStat(filename);
+	int totalTime_t1= getTotalTime();
+	int idleTime_t1 = getIdleTime();
 	if( b_got_t1 == false) return -1;
 
 	sleep(1);
 
-	bool b_got_t2  = this-> getDataFromStat(filename.c_str());
-	int totalTime_t2= this-> getTotalTime();
-	int idleTime_t2 = this-> getIdleTime();
+	bool b_got_t2  	= getDataFromStat(filename);
+	int totalTime_t2= getTotalTime();
+	int idleTime_t2 = getIdleTime();
 	if( b_got_t2 == false) return -1;
 	
 	totalCPUtime_delta = totalTime_t2 -totalTime_t1;
 	idleTime_delta =idleTime_t2 - idleTime_t1; 
 	
 	if(totalCPUtime_delta != 0)
-		cpuusage= 100 * (totalCPUtime_delta - idleTime_delta) / totalCPUtime_delta;
+		cpuUsedPerc= 100 * (totalCPUtime_delta - idleTime_delta) / totalCPUtime_delta;
 	
-	return cpuusage;
+	return cpuUsedPerc;
 }
 
 int CPUusage::getTotalTime()
@@ -132,16 +91,3 @@ int CPUusage::getIdleTime()
 	return this-> idleTime;
 }
 
-int main(int argc, const char *argv[])
-{
-	CPUusage cpuusage;
-	int cpu = cpuusage.getCPUusage();
-	if(cpu == -1)
-		cerr << "function getCPUusage doesn't work !";
-	else
-	{
-		cout 	<< "CPUusage: " 
-			<< cpu << endl;
-		return 0;
-	}	
-}
