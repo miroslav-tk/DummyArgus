@@ -10,7 +10,7 @@ bool Memusage::getDataFromMeminfo (const std::string& filename)
 	if(!infile)
 	{
 		std::cerr 	<< "error: unable ro open input file :"
-				<< infile << std::endl;
+				<< filename << std::endl;
 		return false;
 	}
 

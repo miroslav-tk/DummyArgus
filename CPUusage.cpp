@@ -9,8 +9,8 @@ bool CPUusage::getDataFromStat (const std::string& filename)
 	
 	if(!infile)
 	{
-		std::cerr 	<< "error: unable ro open input file :"
-				<< infile << std::endl;
+		std::cerr 	<< "error: unable to open input file :"
+				<< filename << std::endl;
 		return false;
 	}
 	

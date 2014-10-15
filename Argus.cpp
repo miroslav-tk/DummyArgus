@@ -1,6 +1,7 @@
 #include <iostream>
 #include "CPUusage.h"
 #include "Memusage.h"
+#include "Diskusage.h"
 
 int main(int argc, const char *argv[])
 {
@@ -26,6 +27,19 @@ int main(int argc, const char *argv[])
 	{
 		std::cout 	<< "Memusage: " 
 				<< memUsedPerc 	<<"%"
+				<< std::endl;
+	}
+
+	Diskusage diskusage;
+	std::string mountPoint = "/";
+	int diskUsedPerc = diskusage.calDiskusage(mountPoint);
+
+	if(diskUsedPerc == -1)
+		std::cerr 	<< "the path was not a mount point";
+	else
+	{
+		std::cout 	<< "Diskusage: " 
+				<< diskUsedPerc 	<<"%"
 				<< std::endl;
 	}
 
