@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include "Memusage.h"
 
-bool Memusage::getDataFromMeminfo (const std::string& filename)
+bool Memusage::GetDataFromMeminfo (const std::string& filename)
 {
 	std::ifstream infile(filename.c_str());
 	
@@ -14,18 +14,18 @@ bool Memusage::getDataFromMeminfo (const std::string& filename)
 		return false;
 	}
 
-	std::string nameTemp,unitTemp;
+	std::string name_temp,unit_temp;
 
-	infile 	>>nameTemp 	>>memTotal 	>>unitTemp
-		>>nameTemp 	>>memFree 	>>unitTemp
-		>>nameTemp 	>>buffers 	>>unitTemp
-		>>nameTemp 	>>cached 	>>unitTemp;
+	infile 	>>name_temp 	>>mem_total_ 	>>unit_temp
+		>>name_temp 	>>mem_free_ 	>>unit_temp
+		>>name_temp 	>>buffers_ 	>>unit_temp
+		>>name_temp 	>>cached_ 	>>unit_temp;
 	
 #ifdef __DEBUG__	
-	std::cout 	<<memTotal 	<<" "
-			<<memFree 	<<" "
-			<<buffers 	<<" "
-			<<cached 	<<" "
+	std::cout 	<<mem_total_ 	<<" "
+			<<mem_free_ 	<<" "
+			<<buffers_ 	<<" "
+			<<cached_ 	<<" "
 			<<std::endl;
 #endif
 
@@ -33,16 +33,21 @@ bool Memusage::getDataFromMeminfo (const std::string& filename)
 	return true;
 }
 
-int Memusage::calMemusage()
+int Memusage::CalMemusage()
 {
 	const std::string filename="/proc/meminfo";
-	int memUsedPerc = 0;
+	int mem_used_perc = 0;
 
-	bool b_got = getDataFromMeminfo(filename);
-	if( b_got == false ) return -1;
+	bool b_got = GetDataFromMeminfo(filename);
+	if( b_got == false ) 
+	{
+		return -1;
+	}
 
-	if( memTotal != 0 )
-		memUsedPerc = 100 * (memTotal - memFree -buffers -cached )/memTotal;	
+	if( mem_total_ != 0 )
+	{
+		mem_used_perc = 100 * (mem_total_ - mem_free_ -buffers_ -cached_ )/mem_total_;	
+	}
 
-	return memUsedPerc;
+	return mem_used_perc;
 }

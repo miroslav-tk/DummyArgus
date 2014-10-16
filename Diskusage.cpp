@@ -18,7 +18,6 @@ bool Diskusage::getDataFromMounts(std::vector<MOUNT_INFO>& mountVec)
 	}
 
 	std::string mountsLines;
-	//std::vector<MOUNT_INFO> mountVec;
 	while( getline(infile,mountsLines))
 	{
 
@@ -49,26 +48,33 @@ bool Diskusage::getDataFromMounts(std::vector<MOUNT_INFO>& mountVec)
 	else 	
 		return true;
 }
-bool Diskusage::find(std::vector<MOUNT_INFO>& mountVec,const std::string& mountPoint)
-{
-	std::vector<MOUNT_INFO>::iterator first = mountVec.begin();
-	std::vector<MOUNT_INFO>::iterator end  = mountVec.end();
-	while(first != end)
-	{
-		if((*first).mountPoint == mountPoint)
-			return true;
-		++first;
-	}
-	return false;
-}
+//bool Diskusage::find(const std::vector<MOUNT_INFO>& mountVec,const std::string& mountPoint)
+//{
+//	std::vector<MOUNT_INFO>::iterator first = mountVec.begin();
+//	std::vector<MOUNT_INFO>::iterator end  = mountVec.end();
+//	while(first != end)
+//	{
+//		if((*first).mountPoint == mountPoint)
+//		{
+//			return true;
+//		}
+//		++first;
+//	}
+//	return false;
+//}
 bool Diskusage::checkMountPoint(const std::string& mountPoint)
 {
 	std::vector<MOUNT_INFO> mountVec;
 	bool b_got = getDataFromMounts(mountVec);
 	if (b_got == false) 
-		return false;
-	bool b_find = find(mountVec,mountPoint);
-	return b_find;
+	{
+		return false; 	  
+	}
+	std::vector<MOUNT_INFO>::iterator it = std::find_if(mountVec.begin(),mountVec.end(),Diskusage(mountPoint));
+#ifdef __DEBUG__
+	std::cout <<"The specific mount point is : "<< (*it).mountPoint << std::endl;
+#endif
+	return true;
 }
 int Diskusage::calDiskusage(const std::string& mountPoint)
 {

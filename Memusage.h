@@ -3,19 +3,19 @@
 class Memusage
 {
 public:
-	Memusage(): 	memTotal(0),
-			memFree(0),
-			buffers(0),
-			cached(0){}
+	Memusage(): 	mem_total_(0),
+			mem_free_(0),
+			buffers_(0),
+			cached_(0){}
 	~Memusage(){}
 	
-	bool getDataFromMeminfo (const std::string& filename);
-	int calMemusage();
+	bool GetDataFromMeminfo (const std::string& filename);
+	int CalMemusage();
 
 private:
 	//from /proc/meminfo
-	int memTotal;
-	int memFree;
-	int buffers;
-	int cached;
+	int mem_total_;
+	int mem_free_;
+	int buffers_;
+	int cached_;
 };
