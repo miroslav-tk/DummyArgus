@@ -2,9 +2,9 @@
 #include <vector>
 
 typedef struct {
-	std::string deviceName;
-	std::string mountPoint;
-	std::string fileSystem;
+	std::string device_name;
+	std::string mount_point;
+	std::string file_system;
 	std::string parameters;
 	std::string dump;
 	std::string fsck;
@@ -14,19 +14,19 @@ class Diskusage
 {
 public:
 	Diskusage(){}
-	Diskusage(std::string strval):myMountPoint(strval){}
+	Diskusage(std::string strval):specfic_mount_point_(strval){}
 	~Diskusage(){}
 	bool operator()(const MOUNT_INFO& mount_info)
 	{
-		return (mount_info.mountPoint == myMountPoint );
+		return (mount_info.mount_point == specfic_mount_point_ );
 	}
-	bool getDataFromMounts(std::vector<MOUNT_INFO>& mountVec);
-	//bool find(std::vector<MOUNT_INFO>& mountVec,const std::string& mountPoint);
-	bool checkMountPoint(const std::string& mountPoint);
-	int calDiskusage(const std::string& mountPoint);
+	bool GetDataFromMounts(std::vector<MOUNT_INFO>& mount_vec);
+	//bool find(std::vector<MOUNT_INFO>& mount_vec,const std::string& mount_point);
+	bool CheckMountPoint(const std::string& mount_point);
+	int CalDiskusage(const std::string& mount_point);
 	
 
 private:
-	std::string myMountPoint;
+	std::string specfic_mount_point_;
 };
 

@@ -5,7 +5,7 @@
 #include <algorithm> 
 #include "Diskusage.h"
 
-bool Diskusage::getDataFromMounts(std::vector<MOUNT_INFO>& mountVec)
+bool Diskusage::GetDataFromMounts(std::vector<MOUNT_INFO>& mount_vec)
 {
 
 	std::ifstream infile("/proc/mounts");
@@ -17,44 +17,44 @@ bool Diskusage::getDataFromMounts(std::vector<MOUNT_INFO>& mountVec)
 		return false;
 	}
 
-	std::string mountsLines;
-	while( getline(infile,mountsLines))
+	std::string mount_input_lines;
+	while( getline(infile,mount_input_lines))
 	{
+		std::stringstream inputline_stream(mount_input_lines);
 
-		std::string deviceName,mountPoint,fileSystem,parameters,dump,fsck;
-		std::stringstream mystream(mountsLines);
+		MOUNT_INFO mount_info;
+		inputline_stream 	>> mount_info.device_name
+					>> mount_info.mount_point
+					>> mount_info.file_system
+					>> mount_info.parameters
+					>> mount_info.dump
+					>> mount_info.fsck;
 
-		MOUNT_INFO mountInfo;
-		mystream 	>> mountInfo.deviceName
-				>> mountInfo.mountPoint
-				>> mountInfo.fileSystem
-				>> mountInfo.parameters
-				>> mountInfo.dump
-				>> mountInfo.fsck;
-
-		mountVec.push_back(mountInfo);
+		mount_vec.push_back(mount_info);
 	}
 #ifdef __DEBUG__
-	for (std::vector<MOUNT_INFO>::const_iterator i = mountVec.begin(); i != mountVec.end(); ++i)
+	for (std::vector<MOUNT_INFO>::const_iterator i = mount_vec.begin(); i != mount_vec.end(); ++i)
 	{
-		std::cout << (*i).deviceName << " " << (*i).mountPoint <<std::endl;
+		std::cout << (*i).device_name << " " << (*i).mount_point <<std::endl;
 	}
 #endif
-	if(mountVec.empty())
+	if(mount_vec.empty())
 	{
 		std::cerr 	<<"error: no mount point ";
 		return false;
 	}
 	else 	
+	{
 		return true;
+	}
 }
-//bool Diskusage::find(const std::vector<MOUNT_INFO>& mountVec,const std::string& mountPoint)
+//bool Diskusage::find(const std::vector<MOUNT_INFO>& mount_vec,const std::string& mount_point)
 //{
-//	std::vector<MOUNT_INFO>::iterator first = mountVec.begin();
-//	std::vector<MOUNT_INFO>::iterator end  = mountVec.end();
+//	std::vector<MOUNT_INFO>::iterator first = mount_vec.begin();
+//	std::vector<MOUNT_INFO>::iterator end  = mount_vec.end();
 //	while(first != end)
 //	{
-//		if((*first).mountPoint == mountPoint)
+//		if((*first).mount_point == mount_point)
 //		{
 //			return true;
 //		}
@@ -62,29 +62,36 @@ bool Diskusage::getDataFromMounts(std::vector<MOUNT_INFO>& mountVec)
 //	}
 //	return false;
 //}
-bool Diskusage::checkMountPoint(const std::string& mountPoint)
+bool Diskusage::CheckMountPoint(const std::string& mount_point)
 {
-	std::vector<MOUNT_INFO> mountVec;
-	bool b_got = getDataFromMounts(mountVec);
+	std::vector<MOUNT_INFO> mount_vec;
+	bool b_got = GetDataFromMounts(mount_vec);
 	if (b_got == false) 
 	{
 		return false; 	  
 	}
-	std::vector<MOUNT_INFO>::iterator it = std::find_if(mountVec.begin(),mountVec.end(),Diskusage(mountPoint));
-#ifdef __DEBUG__
-	std::cout <<"The specific mount point is : "<< (*it).mountPoint << std::endl;
+	std::vector<MOUNT_INFO>::iterator it = std::find_if(mount_vec.begin(),mount_vec.end(),Diskusage(mount_point));
+	if (it == mount_vec.end())
+	{
+		return false;
+	}
+#ifdef __DEBUG__DISK
+	std::cout <<"The specific mount point is : "<< (*it).mount_point << std::endl;
 #endif
 	return true;
 }
-int Diskusage::calDiskusage(const std::string& mountPoint)
+int Diskusage::CalDiskusage(const std::string& mount_point)
 {
 	struct statfs sfs = {0};
-	bool b_checked = checkMountPoint(mountPoint);
+	bool b_checked = CheckMountPoint(mount_point);
 	if(b_checked)
 	{
-		int s = statfs(mountPoint.c_str(),&sfs);
+		int s = statfs(mount_point.c_str(),&sfs);
 	}
-	else return -1;
-	int diskUsedPerc =100 * (sfs.f_blocks - sfs.f_bfree ) / (sfs.f_blocks -sfs.f_bfree + sfs.f_bavail) + 1;
-	return diskUsedPerc;
+	else
+	{
+		return -1;
+	}
+	int disk_used_perc =100 * (sfs.f_blocks - sfs.f_bfree ) / (sfs.f_blocks -sfs.f_bfree + sfs.f_bavail) + 1;
+	return disk_used_perc;
 }

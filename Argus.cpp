@@ -10,7 +10,8 @@ int main(int argc, const char *argv[])
 
 	if(cpu_used_perc == -1)
 	{
-		std::cerr 	<< "function CalCPUusage doesn't work !";
+		std::cerr 	<< "function CalCPUusage doesn't work !"
+				<< std::endl ;
 	}
 	else
 	{
@@ -25,7 +26,8 @@ int main(int argc, const char *argv[])
 
 	if(mem_used_perc == -1)
 	{
-		std::cerr 	<< "function CalMemusage doesn't work !";
+		std::cerr 	<< "function CalMemusage doesn't work !"
+				<< std::endl;
 	}
 	else
 	{
@@ -35,17 +37,18 @@ int main(int argc, const char *argv[])
 	}
 
 	Diskusage diskusage;
-	std::string mountPoint = "/";
-	int diskUsedPerc = diskusage.calDiskusage(mountPoint);
+	std::string mount_point = "/home";
+	int disk_used_perc = diskusage.CalDiskusage(mount_point);
 
-	if(diskUsedPerc == -1)
+	if(disk_used_perc == -1)
 	{
-		std::cerr 	<< "the path was not a mount point";
+		std::cerr 	<< "the path was not a mount point"
+				<< std::endl;
 	}
 	else
 	{
 		std::cout 	<< "Diskusage: " 
-				<< diskUsedPerc 	<<"%"
+				<< disk_used_perc 	<<"%"
 				<< std::endl;
 	}
 
