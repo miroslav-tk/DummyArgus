@@ -8,15 +8,6 @@
     return suminfo_;
   }
 
-  SummaryInfo& Summary::set_suminfo(const SummaryInfo& suminfo)
-  {
-    suminfo_.hostname = suminfo.hostname;
-    suminfo_.content = suminfo.content;
-    suminfo_.val = suminfo.val;
-    suminfo_.time = suminfo.time;
-    return suminfo_;
-  }
-
 struct tm* Summary::GetTime()
 {
  time_t rawtime;
@@ -30,17 +21,14 @@ struct tm* Summary::GetTime()
 }
 
 bool Summary::CreateSummaryInfo(const std::string& content,
-                                const int& cpu_used_perc)
+                                const float& val)
 {
-  SummaryInfo suminfo;
   char hname[20];
   gethostname(hname,20);
-  suminfo.hostname = std::string(hname);
-  suminfo.content = content;
-  suminfo.val = cpu_used_perc;
-  suminfo.time = asctime( GetTime());
-
-  this->set_suminfo(suminfo);
+  suminfo_.hostname = std::string(hname);
+  suminfo_.content = content;
+  suminfo_.val = val;
+  suminfo_.time = asctime( GetTime());
 
   return true;
 }

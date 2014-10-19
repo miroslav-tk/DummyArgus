@@ -2,6 +2,7 @@
 #include "CPUusage.h"
 #include "Memusage.h"
 #include "Diskusage.h"
+#include "LoadAverage.h"
 
 int main(int argc, const char *argv[])
 {
@@ -55,6 +56,23 @@ int main(int argc, const char *argv[])
   if(!b_got_disk)
   {
     std::cerr 	<< "the path was not a mount point"
+        << std::endl;
+  }
+  else
+  {
+    std::cout
+        << suminfo.hostname   <<" "
+        << suminfo.content    <<" "
+        << suminfo.val        <<" "
+        << suminfo.time       <<" "
+        << std::endl;
+  }
+
+  LoadAverage loadaver;
+	bool b_got_load = loadaver.CalLoadAverage(suminfo);
+	if(!b_got_load)
+  {
+    std::cerr 	<< "function CalLoadAverage doesn't work !"
         << std::endl;
   }
   else

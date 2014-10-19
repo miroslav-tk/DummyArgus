@@ -5,7 +5,7 @@
 typedef struct{
   std::string hostname;
   std::string content;
-  int val;
+  float  val;
   std::string time;
 } SummaryInfo;
 
@@ -18,10 +18,9 @@ public:
   ~Summary(){}
 
   struct tm* GetTime();
-  bool CreateSummaryInfo(const std::string& content, const int& cpu_used_perc);
+  bool CreateSummaryInfo(const std::string& content, const float& val);
 
   SummaryInfo get_suminfo();
-  SummaryInfo& set_suminfo(const SummaryInfo& suminfo);
 
 private:
   SummaryInfo suminfo_;
