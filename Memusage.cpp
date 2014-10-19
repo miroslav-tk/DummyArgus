@@ -33,7 +33,7 @@ bool Memusage::GetDataFromMeminfo (const std::string& filename)
 	return true;
 }
 
-int Memusage::CalMemusage()
+bool  Memusage::CalMemusage(SummaryInfo& suminfo)
 {
 	const std::string filename="/proc/meminfo";
 	int mem_used_perc = 0;
@@ -41,7 +41,7 @@ int Memusage::CalMemusage()
 	bool b_got = GetDataFromMeminfo(filename);
 	if( b_got == false ) 
 	{
-		return -1;
+		return false;
 	}
 
 	if( mem_total_ != 0 )
@@ -49,5 +49,9 @@ int Memusage::CalMemusage()
 		mem_used_perc = 100 * (mem_total_ - mem_free_ -buffers_ -cached_ )/mem_total_;	
 	}
 
-	return mem_used_perc;
+  Summary summary;
+  summary.CreateSummaryInfo(std::string("Memusage"), mem_used_perc);
+  
+  suminfo = summary.get_suminfo();
+	return true;
 }

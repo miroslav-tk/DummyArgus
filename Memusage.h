@@ -1,4 +1,8 @@
+#ifndef MEMUSAGE_H
+#define MEMUSAGE_H
+
 #include <string>
+#include "Summary.h"
 
 class Memusage
 {
@@ -10,7 +14,7 @@ public:
 	~Memusage(){}
 	
 	bool GetDataFromMeminfo (const std::string& filename);
-	int CalMemusage();
+  bool CalMemusage(SummaryInfo& suminfo);
 
 private:
 	//from /proc/meminfo
@@ -19,3 +23,5 @@ private:
 	int buffers_;
 	int cached_;
 };
+
+#endif

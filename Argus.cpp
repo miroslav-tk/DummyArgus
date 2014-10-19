@@ -5,52 +5,66 @@
 
 int main(int argc, const char *argv[])
 {
-	CPUusage cpuusage;
-	int cpu_used_perc = cpuusage.CalCPUusage();
+  SummaryInfo suminfo;
+  std::cout
+      << "HOSTNAME "
+      << "CONTENT "
+      << "VALUE "
+      << "TIME "
+      << std::endl;
 
-	if(cpu_used_perc == -1)
+	CPUusage cpuusage;
+	bool b_got_cpu = cpuusage.CalCPUusage(suminfo);
+	if(!b_got_cpu)
 	{
 		std::cerr 	<< "function CalCPUusage doesn't work !"
 				<< std::endl ;
 	}
 	else
 	{
-		std::cout 	<< "CPUusage: " 
-				<< cpu_used_perc 	<<"%"
-				<< std::endl;
+    std::cout
+        << suminfo.hostname   <<" "
+        << suminfo.content    <<" "
+        << suminfo.val        <<" "
+        << suminfo.time       <<" "
+        << std::endl;
 	}	
 
 
-	Memusage memusage;
-	int mem_used_perc = memusage.CalMemusage();
+  Memusage memusage;
+	bool b_got_mem = memusage.CalMemusage(suminfo);
+	if(!b_got_mem)
+  {
+    std::cerr 	<< "function CalMemusage doesn't work !"
+        << std::endl;
+  }
+  else
+  {
+    std::cout
+        << suminfo.hostname   <<" "
+        << suminfo.content    <<" "
+        << suminfo.val        <<" "
+        << suminfo.time       <<" "
+        << std::endl;
+  }
 
-	if(mem_used_perc == -1)
-	{
-		std::cerr 	<< "function CalMemusage doesn't work !"
-				<< std::endl;
-	}
-	else
-	{
-		std::cout 	<< "Memusage: " 
-				<< mem_used_perc 	<<"%"
-				<< std::endl;
-	}
+  Diskusage diskusage;
+  std::string mount_point = "/home";
+  bool b_got_disk= diskusage.CalDiskusage(mount_point,suminfo);
 
-	Diskusage diskusage;
-	std::string mount_point = "/home";
-	int disk_used_perc = diskusage.CalDiskusage(mount_point);
-
-	if(disk_used_perc == -1)
-	{
-		std::cerr 	<< "the path was not a mount point"
-				<< std::endl;
-	}
-	else
-	{
-		std::cout 	<< "Diskusage: " 
-				<< disk_used_perc 	<<"%"
-				<< std::endl;
-	}
-
+  if(!b_got_disk)
+  {
+    std::cerr 	<< "the path was not a mount point"
+        << std::endl;
+  }
+  else
+  {
+    std::cout
+        << suminfo.hostname   <<" "
+        << suminfo.content    <<" "
+        << suminfo.val        <<" "
+        << suminfo.time       <<" "
+        << std::endl;
+  }
 	return 0;
 }

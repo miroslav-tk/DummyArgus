@@ -51,7 +51,7 @@ bool CPUusage::GetDataFromStat (const std::string& filename)
 	infile.close();
 	return true;
 }
-int CPUusage::CalCPUusage()
+bool CPUusage::CalCPUusage(SummaryInfo& suminfo)
 //calculate cpuusage
 {
 
@@ -65,7 +65,7 @@ int CPUusage::CalCPUusage()
 	int idle_time_t1 = get_idle_time();
 	if( b_got_t1 == false) 
 	{
-		return -1;
+		return false;
 	}
 	sleep(1);
 
@@ -74,7 +74,7 @@ int CPUusage::CalCPUusage()
 	int idle_time_t2 = get_idle_time();
 	if( b_got_t2 == false)
 	{
-		return -1;
+		return false;
 	}
 	total_cputime_delta = total_time_t2 - total_time_t1;
 	idle_time_delta =idle_time_t2 - idle_time_t1; 
@@ -83,7 +83,12 @@ int CPUusage::CalCPUusage()
 	{
 		cpu_used_perc= 100 * (total_cputime_delta - idle_time_delta) / total_cputime_delta;
 	}
-	return cpu_used_perc;
+
+  Summary summary;
+  summary.CreateSummaryInfo(std::string("CPUusage"), cpu_used_perc);
+  
+  suminfo = summary.get_suminfo();
+	return true;
 }
 
 int CPUusage::get_total_time()

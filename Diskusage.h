@@ -1,5 +1,9 @@
+#ifndef DISKUSAGE_H
+#define DISKUSAGE_H
+
 #include <string>
 #include <vector>
+#include "Summary.h"
 
 typedef struct {
 	std::string device_name;
@@ -23,10 +27,11 @@ public:
 	bool GetDataFromMounts(std::vector<MOUNT_INFO>& mount_vec);
 	//bool find(std::vector<MOUNT_INFO>& mount_vec,const std::string& mount_point);
 	bool CheckMountPoint(const std::string& mount_point);
-	int CalDiskusage(const std::string& mount_point);
+  bool CalDiskusage(const std::string& mount_point, SummaryInfo& suminfo);
 	
 
 private:
 	std::string specfic_mount_point_;
 };
 
+#endif
