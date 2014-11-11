@@ -2,45 +2,61 @@
 #define MSGSERIAL
 
 #include <iostream>
+#include "Summary.h"
+
+//typedef struct {
+  //uint16_t body_len;
+  //uint16_t code;
+//}SumHeader;
 
 namespace test
 {
+//const uint16_t MSG_FLAG = 0x2323;
+//const uint16_t MSG_HEADER_LENGTH = 64;
+//class MsgHeader
+//{
+//public:
+  //MsgHeader ():
+      //msg_flag_(MSG_FLAG),
+      //msg_header_len_(MSG_HEADER_LENGTH),
+      //msg_body_len_(0),
+      //msg_code_(0){}
+  //MsgHeader (uint16_t body_len,uint16_t code):
+      //msg_flag_(MSG_FLAG),
+      //msg_header_len_(MSG_HEADER_LENGTH),
+      //msg_body_len_(body_len),
+      //msg_code_(code){}
+  //virtual ~MsgHeader ();
 
-const uint16_t MSG_FLAG = 0x2323;
-const uint16_t MSG_HEADER_LENGTH = 64;
-class MsgHeader
-{
-public:
-  MsgHeader ():
-      msg_flag_(MSG_FLAG),
-      msg_header_len_(MSG_HEADER_LENGTH),
-      msg_body_len_(0),
-      msg_code_(0){}
-  virtual ~MsgHeader ();
+  //int Serialize(char* buffer,uint32_t buf_len);
+  //int Deserialize(const char* buffer,uint32_t buf_len);
 
-  int Serialize(char* buffer,uint32_t buf_len);
-  int Deserialize(char* buffer,uint32_t buf_len);
+  //void  SetDataFromSumHeader(SumHeader sumheader)
+  //{
+    //msg_body_len_ = sumheader.body_len;
+    //msg_code_ = sumheader.code;
+  //}
 
-  int get_msg_header_len()
-  {
-    return msg_header_len_;
-  }
+  //int get_msg_header_len()
+  //{
+    //return msg_header_len_;
+  //}
 
-  int get_msg_body_len()
-  {
-    return msg_body_len_;
-  }
+  //int get_msg_body_len()
+  //{
+    //return msg_body_len_;
+  //}
 
-  void set_msg_body_len(const uint16_t body_len)
-  {
-    msg_body_len_=body_len;
-  }
-private:
-  uint16_t msg_flag_;
-  uint16_t msg_header_len_;
-  uint16_t msg_body_len_;
-  uint16_t msg_code_;
-};
+  //void set_msg_body_len(const uint16_t body_len)
+  //{
+    //msg_body_len_=body_len;
+  //}
+//private:
+  //uint16_t msg_flag_;
+  //uint16_t msg_header_len_;
+  //uint16_t msg_body_len_;
+  //uint16_t msg_code_;
+//};
 
 class MsgBody
 {
@@ -63,12 +79,19 @@ public:
   {
     return msg_data_;
   }
-  void set_msg_data(const char* data);
+  void set_msg_data(const char* data)
+  {
+    msg_data_ = (char*)data;
+  }
+
+
+  int GetDataFromSummary(char* buffer,uint32_t max_len,const SummaryInfo suminfo);
 
   int Serialize(char* buffer,uint32_t buf_len);
   int Deserialize(const char* buffer,uint32_t buf_len);
 private:
   uint32_t msg_body_len_;
+  uint32_t offset_[4];
   char* msg_data_;
 };
 
