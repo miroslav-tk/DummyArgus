@@ -40,19 +40,19 @@ namespace test
 
 
 int MsgBody::GetDataFromSummary(char* buffer,
-                                uint32_t max_len,
-                                const SummaryInfo suminfo)
+                                const uint32_t max_len,
+                                const SummaryInfo& suminfo)
 {
   if (buffer == NULL)
   {
     return -1; 
   }
-  offset_[0] += suminfo.hostname.size();
-  offset_[1] += suminfo.content.size();
-  offset_[2] += sizeof(suminfo.val);
-  offset_[3] += suminfo.time.size();
+  length_[0] = suminfo.hostname.size();
+  length_[1] = suminfo.content.size();
+  length_[2] = sizeof(suminfo.val);
+  length_[3] = suminfo.time.size();
 
-  uint32_t total_length = offset_[3];
+  uint32_t total_length = length_[0] + length_[1] + length_[2] + length_[3];
 
   if (total_length > max_len)
   {
@@ -63,18 +63,43 @@ int MsgBody::GetDataFromSummary(char* buffer,
     memcpy(buffer,
            suminfo.hostname.data(),
            suminfo.hostname.size());
-    memcpy(buffer + offset_[0],
+    memcpy(buffer + length_[0],
            suminfo.content.data(),
            suminfo.content.size());
-    memcpy(buffer + offset_[1],
+    memcpy(buffer + length_[0] + length_[1],
            &(suminfo.val),
            sizeof(suminfo.val));
-    memcpy(buffer + offset_[2],
+    memcpy(buffer  + length_[0] + length_[1] + length_[2],
            suminfo.time.data(),
            suminfo.time.size());
     return total_length;
   }
   
+  return 0;
+}
+
+int MsgBody::GetSummaryFromData(const char* buffer,
+                       const uint32_t max_len,
+                       SummaryInfo& suminfo)
+{
+  if(buffer == NULL)  
+  {
+    return -1;
+  }
+
+  std::string hostname(buffer + 0 ,
+                       buffer + length_[0]);
+  std::string content(buffer + length_[0],
+                      buffer + length_[0] + length_[1]);
+  float val = *(buffer + length_[0] + length_[1]);
+  std::string time(buffer + length_[0] + length_[1] + length_[2],
+                   buffer + length_[0] + length_[1] + length_[2] + length_[3]);
+
+  suminfo.hostname = hostname;
+  suminfo.content = content;
+  suminfo.val = val;
+  suminfo.time = time;
+
   return 0;
 }
 //int MsgBody::Serialize(char* buffer,uint32_t buf_len);

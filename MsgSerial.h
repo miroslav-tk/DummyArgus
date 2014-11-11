@@ -85,13 +85,14 @@ public:
   }
 
 
-  int GetDataFromSummary(char* buffer,uint32_t max_len,const SummaryInfo suminfo);
+  int GetDataFromSummary(char* buffer,const uint32_t max_len,const SummaryInfo& suminfo);
+  int GetSummaryFromData(const char* buffer, const uint32_t max_len, SummaryInfo& suminfo);
 
   int Serialize(char* buffer,uint32_t buf_len);
   int Deserialize(const char* buffer,uint32_t buf_len);
 private:
   uint32_t msg_body_len_;
-  uint32_t offset_[4];
+  uint32_t length_[4];
   char* msg_data_;
 };
 
