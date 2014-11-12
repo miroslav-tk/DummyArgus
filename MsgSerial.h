@@ -11,6 +11,7 @@
 
 namespace test
 {
+const uint16_t MSG_DATA_MAX_LENGTH = 0x80; //传输数据最大为128字节
 //const uint16_t MSG_FLAG = 0x2323;
 //const uint16_t MSG_HEADER_LENGTH = 64;
 //class MsgHeader
@@ -85,11 +86,11 @@ public:
   }
 
 
-  int GetDataFromSummary(char* buffer,const uint32_t max_len,const SummaryInfo& suminfo);
-  int GetSummaryFromData(const char* buffer, const uint32_t max_len, SummaryInfo& suminfo);
+  int GetDataFromSummary(char* buffer,const SummaryInfo& suminfo);
+  int GetSummaryFromData(const char* buffer, SummaryInfo& suminfo);
 
-  int Serialize(char* buffer,uint32_t buf_len);
-  int Deserialize(const char* buffer,uint32_t buf_len);
+  int Serialize(std::string& serialized_str,const SummaryInfo& suminfo);
+  int Deserialize(const std::string& deserialized_str,SummaryInfo& suminfo);
 private:
   uint32_t msg_body_len_;
   uint32_t length_[4];

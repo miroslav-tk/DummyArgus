@@ -3,6 +3,7 @@
 #include <cstring>
 #include <netinet/in.h>
 #include <string.h>
+#include <sstream>
 
 namespace test
 {
@@ -40,7 +41,6 @@ namespace test
 
 
 int MsgBody::GetDataFromSummary(char* buffer,
-                                const uint32_t max_len,
                                 const SummaryInfo& suminfo)
 {
   if (buffer == NULL)
@@ -52,9 +52,9 @@ int MsgBody::GetDataFromSummary(char* buffer,
   length_[2] = sizeof(suminfo.val);
   length_[3] = suminfo.time.size();
 
-  uint32_t total_length = length_[0] + length_[1] + length_[2] + length_[3];
+  uint32_t total_length = length_[0] + length_[1] + length_[2] + length_[3] + 1;
 
-  if (total_length > max_len)
+  if (total_length > MSG_DATA_MAX_LENGTH)
   {
     return -2; 
   }
@@ -72,15 +72,40 @@ int MsgBody::GetDataFromSummary(char* buffer,
     memcpy(buffer  + length_[0] + length_[1] + length_[2],
            suminfo.time.data(),
            suminfo.time.size());
+    memset(buffer  + length_[0] + length_[1] + length_[2] + length_[3],
+           0, //字符串结尾符
+           1); //一字节
+    //int aligned_length;
+    //if(total_length%32 == 0)
+    //{
+      //aligned_length = total_length/32;
+    //}
+    //else
+    //{
+      //aligned_length = total_length/32 + 0x20;  
+    //}
+    
+    //return aligned_length;
     return total_length;
   }
   
   return 0;
 }
 
+//int LengthAligned(const uint32_t length,const uint32_t aligned_byte)
+//{
+  //int aligned_length=0;
+  //if(length % aligned_byte == 0)
+  //{
+    //aligned_length =  length / aligned_byte;
+  //}
+  //else
+  //{
+
+  //}
+//}
 int MsgBody::GetSummaryFromData(const char* buffer,
-                       const uint32_t max_len,
-                       SummaryInfo& suminfo)
+                                SummaryInfo& suminfo)
 {
   if(buffer == NULL)  
   {
@@ -102,37 +127,62 @@ int MsgBody::GetSummaryFromData(const char* buffer,
 
   return 0;
 }
-//int MsgBody::Serialize(char* buffer,uint32_t buf_len);
-namespace nettools
+
+int MsgBody::Serialize(std::string& serialized_str,
+                       const SummaryInfo& suminfo)
 {
-int Encode_16 ( char* buffer, uint16_t data )
-{
-  uint16_t temp = htons ( data );
-  memcpy ( buffer, &temp, sizeof ( temp ) );
-  return sizeof ( temp );
+  std::stringstream stream;
+  char data[MSG_DATA_MAX_LENGTH + 4*4 +4];
+  int offset = 0;
+  offset += memcpy((char*)data + offset ,&msg_body_len_,sizeof(msg_body_len_));
+
+
+  char msg_data[MSG_DATA_MAX_LENGTH];
+  msg_body_len_= GetDataFromSummary(msg_data,suminfo);
+  msg_data_ =msg_data;
+  stream  << msg_body_len_
+          << length_[0]
+          << length_[1]
+          << length_[2]
+          << length_[3]
+          << msg_data_;
+  serialized_str = stream.str();
+  return serialized_str.size();
 }
 
-int Decode_16 ( const char* buffer, uint16_t& data )
-{
-  uint16_t temp;
-  memcpy ( &temp, buffer, sizeof ( temp ) );
-  data = ntohs ( temp );
-  return sizeof ( data );
-}
 
-int Encode_32 ( char* buffer, uint32_t data )
+int MsgBody::Deserialize(const std::string& deserialized_str,
+                         SummaryInfo& suminfo)
 {
-  uint32_t temp = htonl ( data );
-  memcpy ( buffer, &temp, sizeof ( temp ) );
-  return sizeof ( temp );
-}
 
-int Decode_32 ( const char* buffer, uint32_t& data )
-{
-  uint32_t temp;
-  memcpy ( &temp, buffer, sizeof ( temp ) );
-  data = ntohl ( temp );
-  return sizeof ( data );
 }
-}// namespace nettools
+/*namespace nettools*/
+//{
+
+//int EncodeBianryArray(char* buffer_out,
+                      //uint32_t buffer_out_length,
+                      //const char* buffer_in,
+                      //const uint32_t buffer_in_length)
+//{ 
+  //if(buffer_out_length > buffer_in_length)
+  //{
+    //return -1;
+  //}
+
+//}
+//int Encode_32 ( char* buffer, uint32_t data )
+//{
+  //uint32_t temp = htonl ( data );
+  //memcpy ( buffer, &temp, sizeof ( temp ) );
+  //return sizeof ( temp );
+//}
+
+//int Decode_32 ( const char* buffer, uint32_t& data )
+//{
+  //uint32_t temp;
+  //memcpy ( &temp, buffer, sizeof ( temp ) );
+  //data = ntohl ( temp );
+  //return sizeof ( data );
+//}
+/*}*/// namespace nettools
 }// namespace test
