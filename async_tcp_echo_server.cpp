@@ -3,8 +3,10 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "Summary.h"
+#include "MsgSerial.h"
 
 using boost::asio::ip::tcp;
+using argusnet::MsgBody;
 
 class session
 {
@@ -38,15 +40,9 @@ class session
                                boost::bind(&session::handle_write, this,
                                            boost::asio::placeholders::error));
     
-      SummaryInfo* test=(SummaryInfo*)data_;
-      if (test != NULL)
-      {
-        std::cout << test->content << std::endl;
-      }
-      else
-      {
-        std::cout << "no data" << std::endl;
-      }
+      msg_body.Deserialize((std::string)data_,
+                           suminfo);
+        std::cout << suminfo.content << std::endl;
     }
     else
     {
@@ -72,6 +68,8 @@ class session
   tcp::socket socket_;
   enum { max_length = 1024 };
   char data_[max_length];
+  MsgBody msg_body;
+  SummaryInfo suminfo;
 };
 
 class server

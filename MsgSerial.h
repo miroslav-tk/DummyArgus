@@ -9,7 +9,7 @@
   //uint16_t code;
 //}SumHeader;
 
-namespace test
+namespace argusnet
 {
 const uint16_t MSG_DATA_MAX_LENGTH = 0x80; //传输数据最大为128字节
 //const uint16_t MSG_FLAG = 0x2323;
@@ -97,12 +97,12 @@ private:
   char* msg_data_;
 };
 
-namespace nettools
-{
-int Encode_16 ( char* buffer, uint16_t data );
-int Decode_16 ( const char* buffer, uint16_t& data );
-int Encode_32 ( char* buffer, uint32_t data );
-int Decode_32 ( const char* buffer, uint32_t& data );
-}//namespace nettools
-}//namespace test
+//namespace nettools
+//{
+//int Encode_16 ( char* buffer, uint16_t data );
+//int Decode_16 ( const char* buffer, uint16_t& data );
+//int Encode_32 ( char* buffer, uint32_t data );
+//int Decode_32 ( const char* buffer, uint32_t& data );
+//}//namespace nettools
+}//namespace argusnet
 #endif

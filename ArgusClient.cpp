@@ -6,8 +6,10 @@
 #include <boost/thread/thread.hpp>
 #include "Summary.h"
 #include "CPUusage.h"
+#include "MsgSerial.h"
 
 using boost::asio::ip::tcp;
+using argusnet::MsgBody;
 
 typedef std::deque<SummaryInfo> SummaryInfo_queue;
 
@@ -72,8 +74,10 @@ class ArgusClient
     write_msgs_.push_back(msg);
     if (!write_in_progress)
     {
+      msg_body.Serialize(send_str,
+                         write_msgs_.front());
       boost::asio::async_write(socket_,
-                               boost::asio::buffer( (char* )(&(write_msgs_.front())),
+                               boost::asio::buffer(send_str,
                                                    sizeof(SummaryInfo)),
                                boost::bind(&ArgusClient::handle_write, this,
                                            boost::asio::placeholders::error));
@@ -87,8 +91,10 @@ class ArgusClient
       write_msgs_.pop_front();
       if (!write_msgs_.empty())
       {
+        msg_body.Serialize(send_str,
+                           write_msgs_.front());
         boost::asio::async_write(socket_,
-                               boost::asio::buffer( (char* )(&(write_msgs_.front())),
+                               boost::asio::buffer(send_str,
                                                    sizeof(SummaryInfo)),
                                  boost::bind(&ArgusClient::handle_write, this,
                                              boost::asio::placeholders::error));
@@ -110,6 +116,8 @@ class ArgusClient
   tcp::socket socket_;
   SummaryInfo read_msg_;
   SummaryInfo_queue write_msgs_;
+  std::string send_str;
+  argusnet::MsgBody msg_body;
 };
 
 int main(int argc, char* argv[])

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <sstream>
 
-namespace test
+namespace argusnet
 {
 //int MsgHeader::Serialize(char* buffer,uint32_t buf_len)
 //{
@@ -134,18 +134,24 @@ int MsgBody::Serialize(std::string& serialized_str,
   std::stringstream stream;
   char data[MSG_DATA_MAX_LENGTH + 4*4 +4];
   int offset = 0;
-  offset += memcpy((char*)data + offset ,&msg_body_len_,sizeof(msg_body_len_));
+  memcpy(data + offset,
+         &msg_body_len_,
+         sizeof(msg_body_len_));
+  offset += sizeof(msg_body_len_);
 
+  memcpy(data + offset ,
+         length_,
+         sizeof(length_[0]) * sizeof(length_));
+  offset += sizeof(length_[0]) * sizeof(length_);
 
   char msg_data[MSG_DATA_MAX_LENGTH];
   msg_body_len_= GetDataFromSummary(msg_data,suminfo);
   msg_data_ =msg_data;
-  stream  << msg_body_len_
-          << length_[0]
-          << length_[1]
-          << length_[2]
-          << length_[3]
-          << msg_data_;
+  memcpy(data + offset ,
+         msg_data_,
+         msg_body_len_);
+
+  stream << data;
   serialized_str = stream.str();
   return serialized_str.size();
 }
@@ -154,7 +160,28 @@ int MsgBody::Serialize(std::string& serialized_str,
 int MsgBody::Deserialize(const std::string& deserialized_str,
                          SummaryInfo& suminfo)
 {
+  std::stringstream stream;
+  char data[MSG_DATA_MAX_LENGTH + 4*4 +4];
+  stream << deserialized_str;
+  stream >> data;
 
+  int offset = 0;
+  memcpy(&msg_body_len_,
+         data + offset,
+         sizeof(msg_body_len_));
+  offset += sizeof(msg_body_len_);
+
+  memcpy(length_,
+         data + offset,
+         sizeof(length_[0]) * sizeof(length_));
+  offset += sizeof(length_[0]) * sizeof(length_);
+
+  memcpy(msg_data_,
+         data + offset,
+         msg_body_len_);
+  
+  GetSummaryFromData(msg_data_,suminfo);
+  return deserialized_str.size();
 }
 /*namespace nettools*/
 //{
@@ -185,4 +212,4 @@ int MsgBody::Deserialize(const std::string& deserialized_str,
   //return sizeof ( data );
 //}
 /*}*/// namespace nettools
-}// namespace test
+}// namespace argusnet
