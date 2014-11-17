@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include "Summary.h"
+#include <stdint.h>
 
 //typedef struct {
   //uint16_t body_len;
@@ -12,6 +13,7 @@
 namespace argusnet
 {
 const uint16_t MSG_DATA_MAX_LENGTH = 0x80; //传输数据最大为128字节
+const uint16_t DATA_TOTAL_LENGTH = MSG_DATA_MAX_LENGTH + 4*4 +4;
 //const uint16_t MSG_FLAG = 0x2323;
 //const uint16_t MSG_HEADER_LENGTH = 64;
 //class MsgHeader
@@ -64,8 +66,14 @@ class MsgBody
 public:
   MsgBody ():
       msg_body_len_(0),
-      msg_data_(NULL){}
-  virtual ~MsgBody ();
+      msg_data_(NULL)
+  {
+    data_ = new char[DATA_TOTAL_LENGTH];
+  }
+  virtual ~MsgBody ()
+  {
+    delete[] data_;
+  }
   
   int get_msg_body_len()
   {
@@ -95,6 +103,7 @@ private:
   uint32_t msg_body_len_;
   uint32_t length_[4];
   char* msg_data_;
+  char* data_;
 };
 
 //namespace nettools

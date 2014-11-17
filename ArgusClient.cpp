@@ -76,6 +76,10 @@ class ArgusClient
     {
       msg_body.Serialize(send_str,
                          write_msgs_.front());
+      MsgBody body_temp;
+      SummaryInfo sum_temp;
+      body_temp.Deserialize(send_str,sum_temp);
+      std::cout << sum_temp.content << std::endl;
       boost::asio::async_write(socket_,
                                boost::asio::buffer(send_str,
                                                    sizeof(SummaryInfo)),
