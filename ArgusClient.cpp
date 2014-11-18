@@ -45,7 +45,7 @@ class ArgusClient
     {
       boost::asio::async_read(socket_,
                               boost::asio::buffer((char*)(&read_msg_)
-                                                  ,sizeof(SummaryInfo)),
+                                                  ,msg_body.get_data_len()),
                               boost::bind(&ArgusClient::handle_read, this,
                                           boost::asio::placeholders::error));
     }
@@ -74,15 +74,10 @@ class ArgusClient
     write_msgs_.push_back(msg);
     if (!write_in_progress)
     {
-      msg_body.Serialize(send_str,
-                         write_msgs_.front());
-      MsgBody body_temp;
-      SummaryInfo sum_temp;
-      body_temp.Deserialize(send_str,sum_temp);
-      std::cout << sum_temp.content << std::endl;
+      msg_body.Serialize(write_msgs_.front());
       boost::asio::async_write(socket_,
-                               boost::asio::buffer(send_str,
-                                                   sizeof(SummaryInfo)),
+                               boost::asio::buffer(msg_body.get_data(),
+                                                   msg_body.get_data_len()),
                                boost::bind(&ArgusClient::handle_write, this,
                                            boost::asio::placeholders::error));
     }
@@ -95,11 +90,10 @@ class ArgusClient
       write_msgs_.pop_front();
       if (!write_msgs_.empty())
       {
-        msg_body.Serialize(send_str,
-                           write_msgs_.front());
+        msg_body.Serialize( write_msgs_.front());
         boost::asio::async_write(socket_,
                                boost::asio::buffer(send_str,
-                                                   sizeof(SummaryInfo)),
+                                                   msg_body.get_data_len()),
                                  boost::bind(&ArgusClient::handle_write, this,
                                              boost::asio::placeholders::error));
       }

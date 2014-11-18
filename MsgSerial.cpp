@@ -75,7 +75,6 @@ int MsgBody::GetDataFromSummary(char* buffer,
     memset(buffer  + length_[0] + length_[1] + length_[2] + length_[3],
            0, //字符串结尾符
            1); //一字节
-    std::cout << "In MsgSerial,buffer: " << buffer  << std::endl;
     //int aligned_length;
     //if(total_length%32 == 0)
     //{
@@ -129,67 +128,43 @@ int MsgBody::GetSummaryFromData(const char* buffer,
   return 0;
 }
 
-int MsgBody::Serialize(std::string& serialized_str,
-                       const SummaryInfo& suminfo)
+int MsgBody::Serialize(const SummaryInfo& suminfo)
 {
   //std::stringstream stream;
-  char msg_data[MSG_DATA_MAX_LENGTH];//正文数据
-  msg_body_len_= GetDataFromSummary(msg_data,suminfo);
-  msg_data_ =msg_data;
+  memset(data_,0,DATA_TOTAL_LENGTH);
 
-  char data[MSG_DATA_MAX_LENGTH + 4*4 +4];//全部数据
+  msg_body_len_= GetDataFromSummary(msg_data_,suminfo);
   int offset = 0;
-  memset(data,0,MSG_DATA_MAX_LENGTH+4*4+4);
-  memcpy(data + offset,
+  memcpy(data_ + offset,
          &msg_body_len_,
          sizeof(msg_body_len_));
   offset += sizeof(msg_body_len_);
-  std::cout <<"After msg_body_len_ memcpy,data: " <<data << std::endl;
 
-  memcpy(data + offset ,
+  memcpy(data_ + offset ,
          length_,
          sizeof(length_[0]) * sizeof(length_));
   offset += sizeof(length_[0]) * sizeof(length_);
-  std::cout <<"After length_  memcpy,data: " <<data << std::endl;
 
-  memcpy(data + offset ,
-         msg_data_,
-         msg_body_len_);
-  std::cout <<"In Serialize,data: " <<data << std::endl;
-
-  //stream << data;
-  //serialized_str = stream.str();
-  
-  std::cout <<"in Serialize,serialized_str: " <<serialized_str << std::endl;
-  return serialized_str.size();
+  return msg_body_len_ + offset;
 }
 
 
-int MsgBody::Deserialize(const std::string& deserialized_str,
-                         SummaryInfo& suminfo)
+int MsgBody::Deserialize(SummaryInfo& suminfo)
 {
-  std::stringstream stream;
-  //stream << deserialized_str;
-  //stream >> data;
-  const char *data = deserialized_str.data();
 
   int offset = 0;
   memcpy(&msg_body_len_,
-         data + offset,
+         data_ + offset,
          sizeof(msg_body_len_));
   offset += sizeof(msg_body_len_);
 
   memcpy(length_,
-         data + offset,
+         data_ + offset,
          sizeof(length_[0]) * sizeof(length_));
   offset += sizeof(length_[0]) * sizeof(length_);
 
-  memcpy(msg_data_,
-         data + offset,
-         msg_body_len_);
-  
   GetSummaryFromData(msg_data_,suminfo);
-  return deserialized_str.size();
+  return msg_body_len_ + offset;
 }
 /*namespace nettools*/
 //{

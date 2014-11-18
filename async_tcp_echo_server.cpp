@@ -39,10 +39,9 @@ class session
                                boost::asio::buffer(data_, bytes_transferred),
                                boost::bind(&session::handle_write, this,
                                            boost::asio::placeholders::error));
-    
-      msg_body.Deserialize((std::string)data_,
-                           suminfo);
-        std::cout << suminfo.content << std::endl;
+      msg_body.set_data(data_,bytes_transferred);
+      msg_body.Deserialize(suminfo);
+      std::cout << suminfo.content << std::endl;
     }
     else
     {

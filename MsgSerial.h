@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Summary.h"
 #include <stdint.h>
+#include <string.h>
 
 //typedef struct {
   //uint16_t body_len;
@@ -69,12 +70,25 @@ public:
       msg_data_(NULL)
   {
     data_ = new char[DATA_TOTAL_LENGTH];
+    msg_data_ = data_ + 4 * 4 + 4;
   }
   virtual ~MsgBody ()
   {
     delete[] data_;
   }
   
+  int get_data_len()
+  {
+    if(msg_body_len_ != 0)
+    {
+      return msg_body_len_ + 4*4 +4;
+    }
+    else
+    {
+      return DATA_TOTAL_LENGTH;
+    }
+  }
+
   int get_msg_body_len()
   {
     return msg_body_len_;
@@ -84,21 +98,26 @@ public:
     msg_body_len_ = body_len;
   }
 
+  const char* get_data()
+  {
+    return data_;
+  }
+
+  void set_data(char* data,uint32_t data_length)
+  {
+    memcpy(data_,data,data_length);
+  }
   const char* get_msg_data()
   {
     return msg_data_;
-  }
-  void set_msg_data(const char* data)
-  {
-    msg_data_ = (char*)data;
   }
 
 
   int GetDataFromSummary(char* buffer,const SummaryInfo& suminfo);
   int GetSummaryFromData(const char* buffer, SummaryInfo& suminfo);
 
-  int Serialize(std::string& serialized_str,const SummaryInfo& suminfo);
-  int Deserialize(const std::string& deserialized_str,SummaryInfo& suminfo);
+  int Serialize(const SummaryInfo& suminfo);
+  int Deserialize(SummaryInfo& suminfo);
 private:
   uint32_t msg_body_len_;
   uint32_t length_[4];
