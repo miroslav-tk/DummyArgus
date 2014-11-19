@@ -114,7 +114,6 @@ class ArgusClient
   tcp::socket socket_;
   SummaryInfo read_msg_;
   SummaryInfo_queue write_msgs_;
-  std::string send_str;
   argusnet::MsgBody msg_body;
 };
 

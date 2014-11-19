@@ -41,7 +41,10 @@ class session
                                            boost::asio::placeholders::error));
       msg_body.set_data(data_,bytes_transferred);
       msg_body.Deserialize(suminfo);
+      std::cout << suminfo.hostname << std::endl;
       std::cout << suminfo.content << std::endl;
+      std::cout << suminfo.val << std::endl;
+      std::cout << suminfo.time << std::endl;
     }
     else
     {
