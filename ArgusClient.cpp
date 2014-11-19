@@ -45,7 +45,7 @@ class ArgusClient
     {
       boost::asio::async_read(socket_,
                               boost::asio::buffer((char*)(&read_msg_)
-                                                  ,msg_body.get_data_len()),
+                                                  ,msg_body_.get_data_len()),
                               boost::bind(&ArgusClient::handle_read, this,
                                           boost::asio::placeholders::error));
     }
@@ -74,10 +74,10 @@ class ArgusClient
     write_msgs_.push_back(msg);
     if (!write_in_progress)
     {
-      msg_body.Serialize(write_msgs_.front());
+      msg_body_.Serialize(write_msgs_.front());
       boost::asio::async_write(socket_,
-                               boost::asio::buffer(msg_body.get_data(),
-                                                   msg_body.get_data_len()),
+                               boost::asio::buffer(msg_body_.get_data(),
+                                                   msg_body_.get_data_len()),
                                boost::bind(&ArgusClient::handle_write, this,
                                            boost::asio::placeholders::error));
     }
@@ -90,10 +90,10 @@ class ArgusClient
       write_msgs_.pop_front();
       if (!write_msgs_.empty())
       {
-        msg_body.Serialize( write_msgs_.front());
+        msg_body_.Serialize( write_msgs_.front());
         boost::asio::async_write(socket_,
-                               boost::asio::buffer(send_str,
-                                                   msg_body.get_data_len()),
+                               boost::asio::buffer(msg_body_.get_data(),
+                                                   msg_body_.get_data_len()),
                                  boost::bind(&ArgusClient::handle_write, this,
                                              boost::asio::placeholders::error));
       }
@@ -114,7 +114,7 @@ class ArgusClient
   tcp::socket socket_;
   SummaryInfo read_msg_;
   SummaryInfo_queue write_msgs_;
-  argusnet::MsgBody msg_body;
+  argusnet::MsgBody msg_body_;
 };
 
 int main(int argc, char* argv[])

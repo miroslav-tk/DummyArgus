@@ -39,12 +39,12 @@ class session
                                boost::asio::buffer(data_, bytes_transferred),
                                boost::bind(&session::handle_write, this,
                                            boost::asio::placeholders::error));
-      msg_body.set_data(data_,bytes_transferred);
-      msg_body.Deserialize(suminfo);
-      std::cout << suminfo.hostname << std::endl;
-      std::cout << suminfo.content << std::endl;
-      std::cout << suminfo.val << std::endl;
-      std::cout << suminfo.time << std::endl;
+      msg_body_.set_data(data_,bytes_transferred);
+      msg_body_.Deserialize(suminfo_);
+      //std::cout << suminfo_.hostname << std::endl;
+      //std::cout << suminfo_.content << std::endl;
+      //std::cout << suminfo_.val << std::endl;
+      //std::cout << suminfo_.time << std::endl;
     }
     else
     {
@@ -70,8 +70,8 @@ class session
   tcp::socket socket_;
   enum { max_length = 1024 };
   char data_[max_length];
-  MsgBody msg_body;
-  SummaryInfo suminfo;
+  MsgBody msg_body_;
+  SummaryInfo suminfo_;
 };
 
 class server
