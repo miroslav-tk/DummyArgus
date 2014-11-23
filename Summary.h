@@ -2,6 +2,8 @@
 
 #ifndef SUMMARY_H
 #define SUMMARY_H
+
+#include <boost/date_time/posix_time/posix_time.hpp>
 typedef struct{
   std::string hostname;
   std::string content;
@@ -17,7 +19,6 @@ public:
   }
   ~Summary(){}
 
-  struct tm* GetTime();
   bool CreateSummaryInfo(const std::string& content, const float& val);
 
   SummaryInfo get_suminfo();
