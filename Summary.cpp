@@ -28,7 +28,7 @@ bool Summary::CreateSummaryInfo(const std::string& content,
   suminfo_.hostname = std::string(hname);
   suminfo_.content = content;
   suminfo_.val = val;
-  suminfo_.time = boost::posix_time::to_iso_string(boost::posix_time::second_clock::local_time()); 
+  suminfo_.time = boost::posix_time::to_simple_string(boost::posix_time::second_clock::local_time()); 
 
   return true;
 }

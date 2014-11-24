@@ -43,30 +43,35 @@ class ArgusClient
   {
     if (!error)
     {
-      boost::asio::async_read(socket_,
-                              boost::asio::buffer((char*)(&read_msg_)
-                                                  ,msg_body_.get_data_len()),
-                              boost::bind(&ArgusClient::handle_read, this,
-                                          boost::asio::placeholders::error));
-    }
-  }
-
-  void handle_read(const boost::system::error_code& error)
-  {
-    if (!error)
-    {
-/*      std::cout.write(read_msg_.body(), read_msg_.body_length());*/
-      //std::cout << "";
+      std::cout << "Connect Succeed!" << std::endl;
       //boost::asio::async_read(socket_,
-                              //boost::asio::buffer(read_msg_.data(), SummaryInfo::header_length),
-                              //boost::bind(&ArgusClient::handle_read_header, this,
-                                          /*boost::asio::placeholders::error));*/
+                              //boost::asio::buffer((char*)(&read_msg_)
+                                                  //,msg_body_.get_data_len()),
+                              //boost::bind(&ArgusClient::handle_read, this,
+                                          //boost::asio::placeholders::error));
     }
     else
     {
       do_close();
     }
   }
+
+  //void handle_read(const boost::system::error_code& error)
+  //{
+    //if (!error)
+    //{
+      ////std::cout.write(read_msg_.body(), read_msg_.body_length());
+      ////std::cout << "";
+      ////boost::asio::async_read(socket_,
+                              ////boost::asio::buffer(read_msg_.data(), SummaryInfo::header_length),
+                              ////boost::bind(&ArgusClient::handle_read_header, this,
+                                          ////boost::asio::placeholders::error));
+    //}
+    //else
+    //{
+      //do_close();
+    //}
+  //}
 
   void do_write(SummaryInfo msg)
   {
@@ -135,7 +140,8 @@ int main(int argc, char* argv[])
 
     ArgusClient c(io_service, iterator);
 
-    boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
+    //boost::thread t(boost::bind(&boost::asio::io_service::run, &io_service));
+    boost::asio::io_service::work my_work(io_service);
 
     SummaryInfo msg;
     CPUusage cpuusage;
