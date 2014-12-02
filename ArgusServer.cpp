@@ -2,6 +2,9 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/enable_shared_from_this.hpp>
+#include <boost/shared_ptr.hpp>
+#include <list>
 #include "Summary.h"
 #include "MsgSerial.h"
 
@@ -9,6 +12,7 @@ using boost::asio::ip::tcp;
 using argusnet::MsgBody;
 
 class session
+  :public boost::enable_shared_from_this<session>
 {
  public:
   session(boost::asio::io_service& io_service)
@@ -24,7 +28,7 @@ class session
   void start()
   {
     socket_.async_read_some(boost::asio::buffer(data_, max_length),
-                            boost::bind(&session::handle_read, this,
+                            boost::bind(&session::handle_read, shared_from_this(),
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred));
   }
@@ -55,12 +59,15 @@ class session
   SummaryInfo suminfo_;
 };
 
+typedef boost::shared_ptr<session> session_ptr;
+
 class server
 {
  public:
-  server(boost::asio::io_service& io_service, short port)
+  server(boost::asio::io_service& io_service,
+         const tcp::endpoint& endpoint)
       : io_service_(io_service),
-      acceptor_(io_service, tcp::endpoint(tcp::v4(), port))
+      acceptor_(io_service, endpoint)
   {
     start_accept();
   }
@@ -68,23 +75,23 @@ class server
  private:
   void start_accept()
   {
-    session* new_session = new session(io_service_);
+    session_ptr new_session(new session(io_service_));
     acceptor_.async_accept(new_session->socket(),
                            boost::bind(&server::handle_accept, this, new_session,
                                        boost::asio::placeholders::error));
   }
 
-  void handle_accept(session* new_session,
+  void handle_accept(session_ptr new_session,
                      const boost::system::error_code& error)
   {
     if (!error)
     {
       new_session->start();
     }
-    else
-    {
-      delete new_session;
-    }
+    //else
+    //{
+      //delete new_session;
+    //}
 
     start_accept();
   }
@@ -92,6 +99,9 @@ class server
   boost::asio::io_service& io_service_;
   tcp::acceptor acceptor_;
 };
+
+typedef boost::shared_ptr<server> server_ptr;
+typedef std::list<server_ptr> server_list;
 
 int main(int argc, char* argv[])
 {
@@ -105,8 +115,13 @@ int main(int argc, char* argv[])
 
     boost::asio::io_service io_service;
 
-    using namespace std; // For atoi.
-    server s(io_service, atoi(argv[1]));
+    server_list servers;
+    for (int i = 1; i < argc; ++i)
+    {
+      tcp::endpoint endpoint(tcp::v4(), atoi(argv[i]));
+      server_ptr server_p(new server(io_service, endpoint));
+      servers.push_back(server_p);
+    }
 
     io_service.run();
   }
