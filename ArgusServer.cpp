@@ -7,6 +7,7 @@
 #include <list>
 #include "Summary.h"
 #include "MsgSerial.h"
+#include "DataAnalysis.h"
 
 using boost::asio::ip::tcp;
 using argusnet::MsgBody;
@@ -41,10 +42,12 @@ class session
     {
       msg_body_.set_data(data_,bytes_transferred);
       msg_body_.Deserialize(suminfo_);
-      std::cout << suminfo_.hostname << std::endl;
-      std::cout << suminfo_.content << std::endl;
-      std::cout << suminfo_.val << std::endl;
-      std::cout << suminfo_.time << std::endl;
+      DataAnalysis analysis;
+      analysis.Collect(suminfo_);
+      //std::cout << suminfo_.hostname << std::endl;
+      //std::cout << suminfo_.content << std::endl;
+      //std::cout << suminfo_.val << std::endl;
+      //std::cout << suminfo_.time << std::endl;
     }
     else
     {
