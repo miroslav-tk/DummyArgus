@@ -12,6 +12,7 @@
 using boost::asio::ip::tcp;
 using argusnet::MsgBody;
 
+int i =2;
 class session
   :public boost::enable_shared_from_this<session>
 {
@@ -44,6 +45,8 @@ class session
       msg_body_.Deserialize(suminfo_);
       DataAnalysis analysis;
       analysis.Collect(suminfo_);
+      if(i==0) analysis.get_host_list();
+      else --i;
       //std::cout << suminfo_.hostname << std::endl;
       //std::cout << suminfo_.content << std::endl;
       //std::cout << suminfo_.val << std::endl;

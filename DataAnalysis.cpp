@@ -3,27 +3,50 @@
 
 void DataAnalysis::Collect(const SummaryInfo& suminfo)
 {
-  UsageValue usage_value;
-  usage_value.val = suminfo.val;
-  usage_value.time = suminfo.time;
+  usage_value_.val = suminfo.val;
+  usage_value_.time = suminfo.time;
 
-  UsageValueList usage_values;
-  usage_values.push_back(usage_value);
+  usage_values_.push_back(usage_value_);
   
-  Usage usage;
-  usage.first = suminfo.content;
-  usage.second = usage_values;
+  usage_.first = suminfo.content;
+  usage_.second = usage_values_;
 
-  UsageList usage_list;
-  usage_list.push_back(usage);
+  usage_list_.push_back(usage_);
 
-  UsageOfHost usage_of_host;
-  usage_of_host.first = suminfo.hostname;
-  usage_of_host.second = usage_list;
-
-  HostList host_list;
-  host_list.insert(std::map<std::string,UsageOfHost>::value_type(suminfo.hostname,
-                                                                 usage_of_host));
-
+  host_list_.insert(HostList::value_type(suminfo.hostname,
+                                         usage_list_));
 }
 
+void DataAnalysis::get_host_list()
+{
+  
+  std::string hostname,content,time;
+  float val;
+  for (HostList::const_iterator h_it = host_list_.begin();
+       h_it != host_list_.end(); 
+       ++h_it) 
+  {
+    hostname = (*h_it).first;
+    for (UsageList::const_iterator u_it =(*h_it).second.begin();
+         u_it != (*h_it).second.end(); 
+         ++u_it) 
+    {
+       content = (*u_it).first;
+       for (UsageValueList::const_iterator uv_it = (*u_it).second.begin();
+            uv_it != (*u_it).second.end();
+            ++uv_it) 
+       {
+         val = (*uv_it).val;
+         time = (*uv_it).time;
+
+         std::cout << "[host:"<<hostname <<"]" << std::endl;
+         std::cout << "\t<Content: "<<content<<">" << std::endl;
+         std::cout << "\t\t"<<val<<"\t\t"<<time << std::endl;
+       }
+       
+    }
+    
+
+  }
+   
+}
