@@ -43,14 +43,14 @@ class session
     {
       msg_body_.set_data(data_,bytes_transferred);
       msg_body_.Deserialize(suminfo_);
-      DataAnalysis analysis;
       analysis.Collect(suminfo_);
-      if(i==0) analysis.get_host_list();
+      if(i==1) analysis.get_host_list();
       else --i;
-      //std::cout << suminfo_.hostname << std::endl;
-      //std::cout << suminfo_.content << std::endl;
-      //std::cout << suminfo_.val << std::endl;
-      //std::cout << suminfo_.time << std::endl;
+      std::cout <<i << std::endl;
+      std::cout << suminfo_.hostname << std::endl;
+      std::cout << suminfo_.content << std::endl;
+      std::cout << suminfo_.val << std::endl;
+      std::cout << suminfo_.time << std::endl;
     }
     else
     {
@@ -63,6 +63,7 @@ class session
   char data_[max_length];
   MsgBody msg_body_;
   SummaryInfo suminfo_;
+  DataAnalysis analysis;
 };
 
 typedef boost::shared_ptr<session> session_ptr;

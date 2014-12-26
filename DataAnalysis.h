@@ -8,8 +8,7 @@ typedef struct{
 }UsageValue;
 
 typedef std::vector<UsageValue> UsageValueList;
-typedef std::pair<std::string,UsageValueList> Usage;
-typedef std::vector<Usage> UsageList;
+typedef std::map<std::string,UsageValueList> UsageList;
 //typedef std::pair<std::string,UsageList> UsageOfHost;
 typedef std::map<std::string,UsageList> HostList;
 
@@ -24,9 +23,6 @@ public:
 
 private:
   UsageValue usage_value_;        
-  UsageValueList usage_values_;
-  Usage usage_;
-  UsageList usage_list_;
   HostList host_list_;
   SummaryInfo suminfo_;
 };
