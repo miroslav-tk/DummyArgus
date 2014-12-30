@@ -12,7 +12,6 @@
 using boost::asio::ip::tcp;
 using argusnet::MsgBody;
 
-int i =2;
 class session
   :public boost::enable_shared_from_this<session>
 {
@@ -43,10 +42,7 @@ class session
     {
       msg_body_.set_data(data_,bytes_transferred);
       msg_body_.Deserialize(suminfo_);
-      analysis.Collect(suminfo_);
-      if(i==1) analysis.get_host_list();
-      else --i;
-      std::cout <<i << std::endl;
+
       std::cout << suminfo_.hostname << std::endl;
       std::cout << suminfo_.content << std::endl;
       std::cout << suminfo_.val << std::endl;
@@ -63,7 +59,6 @@ class session
   char data_[max_length];
   MsgBody msg_body_;
   SummaryInfo suminfo_;
-  DataAnalysis analysis;
 };
 
 typedef boost::shared_ptr<session> session_ptr;
@@ -94,6 +89,8 @@ class server
     if (!error)
     {
       new_session->start();
+      //analysis_.Collect(suminfo);
+      //analysis_.get_host_list();
     }
     //else
     //{
@@ -105,6 +102,7 @@ class server
 
   boost::asio::io_service& io_service_;
   tcp::acceptor acceptor_;
+  DataAnalysis analysis_;
 };
 
 typedef boost::shared_ptr<server> server_ptr;
