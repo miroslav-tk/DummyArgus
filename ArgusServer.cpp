@@ -12,6 +12,8 @@
 using boost::asio::ip::tcp;
 using argusnet::MsgBody;
 
+typedef boost::shared_ptr<DataAnalysis> DataAnalysisPtr;
+
 class session
   :public boost::enable_shared_from_this<session>
 {
@@ -34,6 +36,11 @@ class session
                                         boost::asio::placeholders::bytes_transferred));
   }
 
+
+  void set_analysis(DataAnalysisPtr analysis_ptr)
+  {
+    analysis_ptr_ = analysis_ptr;
+  }
  private:
   void handle_read(const boost::system::error_code& error,
                    size_t bytes_transferred)
@@ -42,11 +49,15 @@ class session
     {
       msg_body_.set_data(data_,bytes_transferred);
       msg_body_.Deserialize(suminfo_);
+      if(analysis_ptr_)
+      {
+        analysis_ptr_->Collect(suminfo_);
+      }
 
-      std::cout << suminfo_.hostname << std::endl;
-      std::cout << suminfo_.content << std::endl;
-      std::cout << suminfo_.val << std::endl;
-      std::cout << suminfo_.time << std::endl;
+      //std::cout << suminfo_.hostname << std::endl;
+      //std::cout << suminfo_.content << std::endl;
+      //std::cout << suminfo_.val << std::endl;
+      //std::cout << suminfo_.time << std::endl;
     }
     else
     {
@@ -59,6 +70,7 @@ class session
   char data_[max_length];
   MsgBody msg_body_;
   SummaryInfo suminfo_;
+  DataAnalysisPtr analysis_ptr_;
 };
 
 typedef boost::shared_ptr<session> session_ptr;
@@ -71,6 +83,7 @@ class server
       : io_service_(io_service),
       acceptor_(io_service, endpoint)
   {
+    analysis_ptr_ = (DataAnalysisPtr)(new DataAnalysis());
     start_accept();
   }
 
@@ -88,9 +101,9 @@ class server
   {
     if (!error)
     {
+      new_session->set_analysis(analysis_ptr_);
       new_session->start();
-      //analysis_.Collect(suminfo);
-      //analysis_.get_host_list();
+      analysis_ptr_->get_host_list();
     }
     //else
     //{
@@ -102,7 +115,7 @@ class server
 
   boost::asio::io_service& io_service_;
   tcp::acceptor acceptor_;
-  DataAnalysis analysis_;
+  DataAnalysisPtr analysis_ptr_;
 };
 
 typedef boost::shared_ptr<server> server_ptr;
