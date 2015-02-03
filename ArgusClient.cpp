@@ -4,6 +4,7 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include <boost/thread/thread.hpp>
+#include "boost/date_time/posix_time/posix_time.hpp"
 #include "Summary.h"
 #include "CPUusage.h"
 #include "MsgSerial.h"
@@ -37,6 +38,16 @@ class ArgusClient
     io_service_.post(boost::bind(&ArgusClient::do_close, this));
   }
 
+  void CPUusage_start(const int& count,SummaryInfo& msg)
+  {
+    CPUusage cpuusage;
+    for (int i = 0; i < count; ++i)
+    {
+      cpuusage.CalCPUusage(msg);
+      this->write(msg);
+      boost::this_thread::sleep(boost::posix_time::seconds(1));
+    }
+  }
  private:
 
   void handle_connect(const boost::system::error_code& error)
@@ -122,10 +133,9 @@ int main(int argc, char* argv[])
     boost::thread t(boost::bind(&boost::asio::io_service::run ,&io_service));
 
     SummaryInfo msg;
-    CPUusage cpuusage;
-	  bool b_got_cpu = cpuusage.CalCPUusage(msg);
-    c.write(msg);
+    boost::thread cpuusage_thread(boost::bind(&ArgusClient::CPUusage_start,&c,3,msg));
 
+    cpuusage_thread.join();
     c.close();
     t.join();
   }

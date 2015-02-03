@@ -54,6 +54,7 @@ class session
         analysis_ptr_->Collect(suminfo_);
       }
 
+      analysis_ptr_->get_host_list();
       //std::cout << suminfo_.hostname << std::endl;
       //std::cout << suminfo_.content << std::endl;
       //std::cout << suminfo_.val << std::endl;
@@ -103,7 +104,6 @@ class server
     {
       new_session->set_analysis(analysis_ptr_);
       new_session->start();
-      analysis_ptr_->get_host_list();
     }
     //else
     //{
