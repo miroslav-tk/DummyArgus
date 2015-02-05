@@ -60,10 +60,7 @@ class session
       //std::cout << suminfo_.val << std::endl;
       //std::cout << suminfo_.time << std::endl;
     }
-    else
-    {
-      delete this;
-    }
+    shared_from_this()->start();
   }
 
   tcp::socket socket_;
@@ -105,10 +102,6 @@ class server
       new_session->set_analysis(analysis_ptr_);
       new_session->start();
     }
-    //else
-    //{
-      //delete new_session;
-    //}
 
     start_accept();
   }

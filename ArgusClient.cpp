@@ -7,6 +7,9 @@
 #include "boost/date_time/posix_time/posix_time.hpp"
 #include "Summary.h"
 #include "CPUusage.h"
+#include "Memusage.h"
+#include "Diskusage.h"
+#include "LoadAverage.h"
 #include "MsgSerial.h"
 
 using boost::asio::ip::tcp;
@@ -38,16 +41,69 @@ class ArgusClient
     io_service_.post(boost::bind(&ArgusClient::do_close, this));
   }
 
-  void CPUusage_start(const int& count,SummaryInfo& msg)
+  void CPUusage_start(const int& count,const int& stride)
   {
     CPUusage cpuusage;
+    SummaryInfo msg;
+    int stride_t;
+    if(stride <= 0)
+    {
+      stride_t = 1;
+    }
+    else
+    {
+      stride_t = stride;
+    }
     for (int i = 0; i < count; ++i)
     {
       cpuusage.CalCPUusage(msg);
       this->write(msg);
-      boost::this_thread::sleep(boost::posix_time::seconds(1));
+      boost::this_thread::sleep(boost::posix_time::seconds(stride_t));
     }
   }
+
+  void Memusage_start(const int& count,const int& stride)
+  {
+    Memusage memusage;
+    SummaryInfo msg;
+    int stride_t;
+    if(stride <= 0)
+    {
+      stride_t = 1;
+    }
+    else
+    {
+      stride_t = stride;
+    }
+    for (int i = 0; i < count; ++i)
+    {
+      memusage.CalMemusage(msg);
+      this->write(msg);
+      boost::this_thread::sleep(boost::posix_time::seconds(stride_t));
+    }
+  }
+
+  void Diskusage_start(const int& count,const int& stride,const std::string& mount_point)
+  {
+    Diskusage diskusage;
+    SummaryInfo msg;
+    int stride_t;
+    if(stride <= 0)
+    {
+      stride_t = 1;
+    }
+    else
+    {
+      stride_t = stride;
+    }
+    for (int i = 0; i < count; ++i)
+    {
+      diskusage.CalDiskusage(mount_point,msg); 
+      this->write(msg);
+      boost::this_thread::sleep(boost::posix_time::seconds(stride_t));
+    }
+  }
+
  private:
 
   void handle_connect(const boost::system::error_code& error)
@@ -130,14 +186,17 @@ int main(int argc, char* argv[])
     ArgusClient c(io_service, iterator);
 
     boost::asio::io_service::work my_work(io_service);
-    boost::thread t(boost::bind(&boost::asio::io_service::run ,&io_service));
+    boost::thread main_thread(boost::bind(&boost::asio::io_service::run ,&io_service));
 
-    SummaryInfo msg;
-    boost::thread cpuusage_thread(boost::bind(&ArgusClient::CPUusage_start,&c,3,msg));
+    boost::thread cpuusage_thread(boost::bind(&ArgusClient::CPUusage_start,&c,3,1));
+    boost::thread memusage_thread(boost::bind(&ArgusClient::Memusage_start,&c,3,10));
+    boost::thread diskusage_thread(boost::bind(&ArgusClient::Diskusage_start,&c,3,10,"/opt"));
 
     cpuusage_thread.join();
+    memusage_thread.join();
+    diskusage_thread.join();
     c.close();
-    t.join();
+    main_thread.join();
   }
   catch (std::exception& e)
   {
