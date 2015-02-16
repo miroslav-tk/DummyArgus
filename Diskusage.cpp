@@ -83,17 +83,26 @@ bool Diskusage::CheckMountPoint(const std::string& mount_point)
 bool Diskusage::CalDiskusage(const std::string& mount_point,
                             SummaryInfo& suminfo)
 {
-	struct statfs sfs = {0};
+	struct statfs sfs;
 	bool b_checked = CheckMountPoint(mount_point);
+  int disk_used_perc = 0;
+  int s = 0;
 	if(b_checked)
 	{
-		int s = statfs(mount_point.c_str(),&sfs);
+		s = statfs(mount_point.c_str(),&sfs);
 	}
 	else
 	{
 		return false;
 	}
-	int disk_used_perc =100 * (sfs.f_blocks - sfs.f_bfree ) / (sfs.f_blocks -sfs.f_bfree + sfs.f_bavail) + 1;
+  if(s == 0)
+  {
+	  disk_used_perc =100 * (sfs.f_blocks - sfs.f_bfree ) / (sfs.f_blocks -sfs.f_bfree + sfs.f_bavail) + 1;
+  }
+  else if (s < 0)
+  {
+    disk_used_perc = -1;
+  }
 
   Summary summary;
   summary.CreateSummaryInfo(std::string("Diskusage"), disk_used_perc);
