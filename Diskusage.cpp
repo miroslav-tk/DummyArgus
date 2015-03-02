@@ -87,13 +87,17 @@ bool Diskusage::CalDiskusage(const std::string& mount_point,
 	bool b_checked = CheckMountPoint(mount_point);
   int disk_used_perc = 0;
   int s = 0;
+  /*
+   * 0代表挂载点信息存在
+   * -1代表挂载点存在,但是文件系统信息获取失败
+   * -2代表挂载点不存在*/
 	if(b_checked)
 	{
 		s = statfs(mount_point.c_str(),&sfs);
 	}
 	else
 	{
-		return false;
+    s = -2;
 	}
   if(s == 0)
   {
@@ -105,8 +109,16 @@ bool Diskusage::CalDiskusage(const std::string& mount_point,
   }
 
   Summary summary;
-  summary.CreateSummaryInfo(std::string("Diskusage"), disk_used_perc);
+  
+  summary.CreateSummaryInfo(std::string("Diskusage:").append(mount_point), disk_used_perc);
   
   suminfo = summary.get_suminfo();
-	return true;
+  if(b_checked)
+  { 
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }

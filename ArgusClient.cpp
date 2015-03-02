@@ -104,6 +104,27 @@ class ArgusClient
     }
   }
 
+  void Loadaverage_start(const int& count,const int& stride)
+  {
+    LoadAverage Loadaverage; 
+    SummaryInfo msg;
+    int stride_t;
+    if(stride <= 0)
+    {
+      stride_t = 1;
+    }
+    else
+    {
+      stride_t = stride;
+    }
+    for (int i = 0; i < count; ++i)
+    {
+      Loadaverage.CalLoadAverage(msg);
+      this->write(msg);
+      boost::this_thread::sleep(boost::posix_time::seconds(stride_t));
+    }
+  }
+
  private:
 
   void handle_connect(const boost::system::error_code& error)
@@ -191,6 +212,7 @@ int main(int argc, char* argv[])
     boost::thread cpuusage_thread(boost::bind(&ArgusClient::CPUusage_start,&c,3,1));
     boost::thread memusage_thread(boost::bind(&ArgusClient::Memusage_start,&c,3,10));
     boost::thread diskusage_thread(boost::bind(&ArgusClient::Diskusage_start,&c,3,10,"/opt"));
+    boost::thread loadaverage_thread(boost::bind(&ArgusClient::Loadaverage_start,&c,3,10));
 
     cpuusage_thread.join();
     memusage_thread.join();
