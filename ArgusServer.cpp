@@ -8,17 +8,17 @@
 #include "Summary.h"
 #include "MsgSerial.h"
 #include "DataAnalysis.h"
+#include "ArgusServer.h"
 
 using boost::asio::ip::tcp;
 using argusnet::MsgBody;
+using namespace argusserver;
 
-typedef boost::shared_ptr<DataAnalysis> DataAnalysisPtr;
-
-class session
-  :public boost::enable_shared_from_this<session>
+class Session
+  :public boost::enable_shared_from_this<Session>
 {
  public:
-  session(boost::asio::io_service& io_service)
+  Session(boost::asio::io_service& io_service)
       : socket_(io_service)
   {
   }
@@ -31,7 +31,7 @@ class session
   void start()
   {
     socket_.async_read_some(boost::asio::buffer(data_, max_length),
-                            boost::bind(&session::handle_read, shared_from_this(),
+                            boost::bind(&Session::handle_read, shared_from_this(),
                                         boost::asio::placeholders::error,
                                         boost::asio::placeholders::bytes_transferred));
   }
@@ -54,7 +54,7 @@ class session
         analysis_ptr_->Collect(suminfo_);
       }
 
-      analysis_ptr_->get_host_list();
+      analysis_ptr_->Print_host_list();
       //std::cout << suminfo_.hostname << std::endl;
       //std::cout << suminfo_.content << std::endl;
       //std::cout << suminfo_.val << std::endl;
@@ -71,12 +71,12 @@ class session
   DataAnalysisPtr analysis_ptr_;
 };
 
-typedef boost::shared_ptr<session> session_ptr;
+typedef boost::shared_ptr<Session> SessionPtr;
 
-class server
+class Server
 {
  public:
-  server(boost::asio::io_service& io_service,
+  Server(boost::asio::io_service& io_service,
          const tcp::endpoint& endpoint)
       : io_service_(io_service),
       acceptor_(io_service, endpoint)
@@ -88,13 +88,13 @@ class server
  private:
   void start_accept()
   {
-    session_ptr new_session(new session(io_service_));
+    SessionPtr new_session(new Session(io_service_));
     acceptor_.async_accept(new_session->socket(),
-                           boost::bind(&server::handle_accept, this, new_session,
+                           boost::bind(&Server::handle_accept, this, new_session,
                                        boost::asio::placeholders::error));
   }
 
-  void handle_accept(session_ptr new_session,
+  void handle_accept(SessionPtr new_session,
                      const boost::system::error_code& error)
   {
     if (!error)
@@ -111,8 +111,8 @@ class server
   DataAnalysisPtr analysis_ptr_;
 };
 
-typedef boost::shared_ptr<server> server_ptr;
-typedef std::list<server_ptr> server_list;
+typedef boost::shared_ptr<Server> ServerPtr;
+typedef std::list<ServerPtr> ServerPtrList;
 
 int main(int argc, char* argv[])
 {
@@ -126,11 +126,11 @@ int main(int argc, char* argv[])
 
     boost::asio::io_service io_service;
 
-    server_list servers;
+    ServerPtrList servers;
     for (int i = 1; i < argc; ++i)
     {
       tcp::endpoint endpoint(tcp::v4(), atoi(argv[i]));
-      server_ptr server_p(new server(io_service, endpoint));
+      ServerPtr server_p(new Server(io_service, endpoint));
       servers.push_back(server_p);
     }
 

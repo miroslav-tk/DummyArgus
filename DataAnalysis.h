@@ -19,7 +19,7 @@ public:
   virtual ~DataAnalysis (){}
 
   void Collect(const SummaryInfo& suminfo);
-  void get_host_list();
+  void Print_host_list();
 
 private:
   UsageValue usage_value_;        

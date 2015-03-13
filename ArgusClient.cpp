@@ -217,6 +217,7 @@ int main(int argc, char* argv[])
     cpuusage_thread.join();
     memusage_thread.join();
     diskusage_thread.join();
+    loadaverage_thread.join();
     c.close();
     main_thread.join();
   }
