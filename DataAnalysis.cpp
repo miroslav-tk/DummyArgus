@@ -9,7 +9,7 @@ void DataAnalysis::Collect(const SummaryInfo& suminfo)
   host_list_[suminfo.hostname][suminfo.content].push_back(usage_value_);
 }
 
-void DataAnalysis::Print_host_list()
+void DataAnalysis::PrintHostList()
 {
   
   std::string hostname,content,time;

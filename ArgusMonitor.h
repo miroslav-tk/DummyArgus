@@ -8,7 +8,7 @@ public:
   ArgusMonitor (){};
   virtual ~ArgusMonitor (){};
 
-  ThresholdAlarm(DataAl);
+  void ThresholdAlarm(const DataAnalysisPtr& analysis_ptr);
 private:
   /* data */
 };

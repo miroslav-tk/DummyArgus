@@ -9,6 +9,7 @@
 #include "MsgSerial.h"
 #include "DataAnalysis.h"
 #include "ArgusServer.h"
+#include "ArgusMonitor.h"
 
 using boost::asio::ip::tcp;
 using argusnet::MsgBody;
@@ -41,6 +42,10 @@ class Session
   {
     analysis_ptr_ = analysis_ptr;
   }
+  void get_analysis(DataAnalysisPtr& analysis_ptr)
+  {
+    analysis_ptr = analysis_ptr_;
+  }
  private:
   void handle_read(const boost::system::error_code& error,
                    size_t bytes_transferred)
@@ -54,7 +59,9 @@ class Session
         analysis_ptr_->Collect(suminfo_);
       }
 
-      analysis_ptr_->Print_host_list();
+      ArgusMonitor am;
+      am.ThresholdAlarm(analysis_ptr_);
+      //analysis_ptr_->PrintHostList();
       //std::cout << suminfo_.hostname << std::endl;
       //std::cout << suminfo_.content << std::endl;
       //std::cout << suminfo_.val << std::endl;
@@ -132,6 +139,8 @@ int main(int argc, char* argv[])
       tcp::endpoint endpoint(tcp::v4(), atoi(argv[i]));
       ServerPtr server_p(new Server(io_service, endpoint));
       servers.push_back(server_p);
+      ArgusMonitor am;
+      //am.ThresholdAlarm()
     }
 
     io_service.run();

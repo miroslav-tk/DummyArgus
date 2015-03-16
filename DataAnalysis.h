@@ -1,6 +1,7 @@
 #ifndef DATAANALYSIS_H
 #define DATAANALYSIS_H 
 #include "Summary.h"
+#include <boost/shared_ptr.hpp>
 
 typedef struct{
   float val;
@@ -8,6 +9,7 @@ typedef struct{
 }UsageValue;
 
 typedef std::vector<UsageValue> UsageValueList;
+typedef boost::shared_ptr<UsageValueList> UsageValueListPtr;
 typedef std::map<std::string,UsageValueList> UsageList;
 //typedef std::pair<std::string,UsageList> UsageOfHost;
 typedef std::map<std::string,UsageList> HostList;
@@ -19,7 +21,8 @@ public:
   virtual ~DataAnalysis (){}
 
   void Collect(const SummaryInfo& suminfo);
-  void Print_host_list();
+  void GetUVListByContent();
+  void PrintHostList();
 
 private:
   UsageValue usage_value_;        
