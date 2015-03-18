@@ -18,10 +18,11 @@ class DataAnalysis
 {
 public:
   DataAnalysis (){}
+  DataAnalysis (HostList& host_list):host_list_(host_list){}
   virtual ~DataAnalysis (){}
 
   void Collect(const SummaryInfo& suminfo);
-  void GetUVListByContent();
+  void get_host_list(HostList& host_list);
   void PrintHostList();
 
 private:

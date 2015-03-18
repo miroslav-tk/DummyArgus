@@ -9,6 +9,11 @@ void DataAnalysis::Collect(const SummaryInfo& suminfo)
   host_list_[suminfo.hostname][suminfo.content].push_back(usage_value_);
 }
 
+void  DataAnalysis::get_host_list(HostList& host_list)
+{
+  host_list=host_list_;
+}
+
 void DataAnalysis::PrintHostList()
 {
   

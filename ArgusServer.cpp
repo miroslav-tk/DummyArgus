@@ -2,6 +2,7 @@
 #include <iostream>
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 #include <boost/enable_shared_from_this.hpp>
 #include <boost/shared_ptr.hpp>
 #include <list>
@@ -59,8 +60,8 @@ class Session
         analysis_ptr_->Collect(suminfo_);
       }
 
-      ArgusMonitor am;
-      am.ThresholdAlarm(analysis_ptr_);
+      //analysis_ptr_->get_host_list(host_list_);
+      //am.ThresholdAlarm(host_list_);
       //analysis_ptr_->PrintHostList();
       //std::cout << suminfo_.hostname << std::endl;
       //std::cout << suminfo_.content << std::endl;
@@ -76,6 +77,8 @@ class Session
   MsgBody msg_body_;
   SummaryInfo suminfo_;
   DataAnalysisPtr analysis_ptr_;
+  HostList host_list_;
+  ArgusMonitor am;
 };
 
 typedef boost::shared_ptr<Session> SessionPtr;
@@ -84,11 +87,12 @@ class Server
 {
  public:
   Server(boost::asio::io_service& io_service,
-         const tcp::endpoint& endpoint)
+         const tcp::endpoint& endpoint,
+         HostList& host_list)
       : io_service_(io_service),
       acceptor_(io_service, endpoint)
   {
-    analysis_ptr_ = (DataAnalysisPtr)(new DataAnalysis());
+    analysis_ptr_ = (DataAnalysisPtr)(new DataAnalysis(host_list));
     start_accept();
   }
 
@@ -134,16 +138,19 @@ int main(int argc, char* argv[])
     boost::asio::io_service io_service;
 
     ServerPtrList servers;
+    HostList host_list; 
+    ArgusMonitor am;
     for (int i = 1; i < argc; ++i)
     {
       tcp::endpoint endpoint(tcp::v4(), atoi(argv[i]));
-      ServerPtr server_p(new Server(io_service, endpoint));
+      ServerPtr server_p(new Server(io_service, endpoint,host_list));
       servers.push_back(server_p);
-      ArgusMonitor am;
-      //am.ThresholdAlarm()
     }
 
-    io_service.run();
+    boost::thread main_thread(boost::bind(&boost::asio::io_service::run ,&io_service));
+    boost::thread argusmonitor_thread(boost::bind(&ArgusMonitor::ThresholdAlarm,&am,host_list));
+    argusmonitor_thread.join();
+    main_thread.join();
   }
   catch (std::exception& e)
   {

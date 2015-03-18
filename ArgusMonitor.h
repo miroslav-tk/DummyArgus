@@ -1,14 +1,13 @@
 #ifndef ARGUSMONITOR_H
 #define ARGUSMONITOR_H
-#include "ArgusServer.h"
-using namespace argusserver;
+#include "DataAnalysis.h" 
 class ArgusMonitor
 {
 public:
   ArgusMonitor (){};
   virtual ~ArgusMonitor (){};
 
-  void ThresholdAlarm(const DataAnalysisPtr& analysis_ptr);
+  void ThresholdAlarm(const HostList& host_list);
 private:
   /* data */
 };
