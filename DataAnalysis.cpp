@@ -6,12 +6,12 @@ void DataAnalysis::Collect(const SummaryInfo& suminfo)
   usage_value_.val = suminfo.val;
   usage_value_.time = suminfo.time;
 
-  host_list_[suminfo.hostname][suminfo.content].push_back(usage_value_);
+  (*host_list_ptr_)[suminfo.hostname][suminfo.content].push_back(usage_value_);
 }
 
-void  DataAnalysis::get_host_list(HostList& host_list)
+void  DataAnalysis::get_host_list_ptr(HostList* host_list_ptr)
 {
-  host_list=host_list_;
+  host_list_ptr=host_list_ptr_;
 }
 
 void DataAnalysis::PrintHostList()
@@ -19,8 +19,8 @@ void DataAnalysis::PrintHostList()
   
   std::string hostname,content,time;
   float val;
-  for (HostList::const_iterator h_it = host_list_.begin();
-       h_it != host_list_.end(); 
+  for (HostList::const_iterator h_it = (*host_list_ptr_).begin();
+       h_it != (*host_list_ptr_).end(); 
        ++h_it) 
   {
     hostname = (*h_it).first;

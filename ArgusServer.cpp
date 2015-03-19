@@ -43,10 +43,6 @@ class Session
   {
     analysis_ptr_ = analysis_ptr;
   }
-  void get_analysis(DataAnalysisPtr& analysis_ptr)
-  {
-    analysis_ptr = analysis_ptr_;
-  }
  private:
   void handle_read(const boost::system::error_code& error,
                    size_t bytes_transferred)
@@ -60,8 +56,6 @@ class Session
         analysis_ptr_->Collect(suminfo_);
       }
 
-      //analysis_ptr_->get_host_list(host_list_);
-      //am.ThresholdAlarm(host_list_);
       //analysis_ptr_->PrintHostList();
       //std::cout << suminfo_.hostname << std::endl;
       //std::cout << suminfo_.content << std::endl;
@@ -77,8 +71,6 @@ class Session
   MsgBody msg_body_;
   SummaryInfo suminfo_;
   DataAnalysisPtr analysis_ptr_;
-  HostList host_list_;
-  ArgusMonitor am;
 };
 
 typedef boost::shared_ptr<Session> SessionPtr;
@@ -88,11 +80,11 @@ class Server
  public:
   Server(boost::asio::io_service& io_service,
          const tcp::endpoint& endpoint,
-         HostList& host_list)
+         HostList* host_list_ptr)
       : io_service_(io_service),
       acceptor_(io_service, endpoint)
   {
-    analysis_ptr_ = (DataAnalysisPtr)(new DataAnalysis(host_list));
+    analysis_ptr_ = (DataAnalysisPtr)(new DataAnalysis(host_list_ptr));
     start_accept();
   }
 
@@ -143,7 +135,7 @@ int main(int argc, char* argv[])
     for (int i = 1; i < argc; ++i)
     {
       tcp::endpoint endpoint(tcp::v4(), atoi(argv[i]));
-      ServerPtr server_p(new Server(io_service, endpoint,host_list));
+      ServerPtr server_p(new Server(io_service, endpoint,&host_list));
       servers.push_back(server_p);
     }
 

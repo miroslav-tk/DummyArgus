@@ -18,16 +18,16 @@ class DataAnalysis
 {
 public:
   DataAnalysis (){}
-  DataAnalysis (HostList& host_list):host_list_(host_list){}
+  DataAnalysis (HostList* host_list_ptr):host_list_ptr_(host_list_ptr){}
   virtual ~DataAnalysis (){}
 
   void Collect(const SummaryInfo& suminfo);
-  void get_host_list(HostList& host_list);
+  void get_host_list_ptr(HostList* host_list_ptr);
   void PrintHostList();
 
 private:
   UsageValue usage_value_;        
-  HostList host_list_;
+  HostList* host_list_ptr_;
   SummaryInfo suminfo_;
 };
 #endif
