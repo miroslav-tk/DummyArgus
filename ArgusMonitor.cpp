@@ -1,17 +1,60 @@
 #include "ArgusMonitor.h"
 #include "ArgusServer.h"
-#include "DataAnalysis.h"
 #include <unistd.h>
 
-void ArgusMonitor::ThresholdAlarm(const HostList& host_list )
+void ArgusMonitor::ThresholdAlarm(const SummaryInfo& suminfo)
 {
+  if((suminfo.content.compare("cpuusage") == 0)
+     && suminfo.val > kCpuusage_max)
+  {
+      std::cerr <<"["<<suminfo.hostname
+                <<"]\t\t[CPUUSAGE]\t\t["
+                <<  suminfo.time
+                <<"][val= "
+                <<  suminfo.val
+                <<"]"<< std::endl;
+  }
+  if((suminfo.content.compare("Memusage") == 0)
+     && suminfo.val > kMemusage_max)
+  {
+      std::cerr <<"["<<suminfo.hostname
+                <<"]\t\t[MEMUSAGE]\t\t["
+                <<  suminfo.time
+                <<"][val= "
+                <<  suminfo.val
+                <<"]"<< std::endl;
+  }
+  if((suminfo.content.compare("Diskusage") == 0)
+     && suminfo.val > kDiskusage_max)
+  {
+      std::cerr <<"["<<suminfo.hostname
+                <<"]\t\t[DISKUSAGE]\t\t["
+                <<  suminfo.time
+                <<"][val= "
+                <<  suminfo.val
+                <<"]"<< std::endl;
+  }
+  if((suminfo.content.compare("LoadAverage") ==0)
+     && suminfo.val > kLoadaverage_max)
+  {
+      std::cerr <<"["<<suminfo.hostname
+                <<"]\t\t[LOADAVERAGE]\t\t["
+                <<  suminfo.time
+                <<"][val= "
+                <<  suminfo.val
+                <<"]"<< std::endl;
+  }
+}
 
+void ArgusMonitor::Monitor(const HostList* host_list_ptr )
+{
   std::string hostname,content,time;
   float val;
+  //std::cout << "in Monitor, host_list_ptr="<<host_list_ptr << std::endl;
   while(1)
   {
-    for (HostList::const_iterator h_it = host_list.begin();
-         h_it != host_list.end(); 
+    for (HostList::const_iterator h_it = (*host_list_ptr).begin();
+         h_it != (*host_list_ptr).end(); 
          ++h_it) 
     {
       hostname = (*h_it).first;
@@ -33,7 +76,7 @@ void ArgusMonitor::ThresholdAlarm(const HostList& host_list )
         }
       }
     }
-    std::cout << "-------------------------sleeping----------------------------" << std::endl;
+    std::cout << "--------------------------------------------------------------------" << std::endl;
     sleep(3);
   }
 }

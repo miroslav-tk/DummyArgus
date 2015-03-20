@@ -54,9 +54,10 @@ class Session
       if(analysis_ptr_)
       {
         analysis_ptr_->Collect(suminfo_);
+        am_.ThresholdAlarm(suminfo_);
       }
 
-      //analysis_ptr_->PrintHostList();
+      analysis_ptr_->PrintHostList();
       //std::cout << suminfo_.hostname << std::endl;
       //std::cout << suminfo_.content << std::endl;
       //std::cout << suminfo_.val << std::endl;
@@ -71,6 +72,7 @@ class Session
   MsgBody msg_body_;
   SummaryInfo suminfo_;
   DataAnalysisPtr analysis_ptr_;
+  ArgusMonitor am_;
 };
 
 typedef boost::shared_ptr<Session> SessionPtr;
@@ -85,6 +87,7 @@ class Server
       acceptor_(io_service, endpoint)
   {
     analysis_ptr_ = (DataAnalysisPtr)(new DataAnalysis(host_list_ptr));
+    //std::cout << "in Server() : "<< host_list_ptr << std::endl;
     start_accept();
   }
 
@@ -136,12 +139,15 @@ int main(int argc, char* argv[])
     {
       tcp::endpoint endpoint(tcp::v4(), atoi(argv[i]));
       ServerPtr server_p(new Server(io_service, endpoint,&host_list));
+      //std::cout << "in fori,i="<<i<<"host_list_ptr= "<<&host_list << std::endl;
       servers.push_back(server_p);
     }
 
+    //std::cout <<"before main_thread , host_list_ptr= "<<&host_list << std::endl;
     boost::thread main_thread(boost::bind(&boost::asio::io_service::run ,&io_service));
-    boost::thread argusmonitor_thread(boost::bind(&ArgusMonitor::ThresholdAlarm,&am,host_list));
-    argusmonitor_thread.join();
+    //std::cout <<"after main_ thread , host_list_ptr= "<<&host_list << std::endl;
+    //boost::thread argusmonitor_thread(boost::bind(&ArgusMonitor::ThresholdAlarm,&am,&host_list));
+    //argusmonitor_thread.join();
     main_thread.join();
   }
   catch (std::exception& e)
