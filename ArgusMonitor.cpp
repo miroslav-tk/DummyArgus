@@ -4,7 +4,7 @@
 
 void ArgusMonitor::ThresholdAlarm(const SummaryInfo& suminfo)
 {
-  if((suminfo.content.compare("cpuusage") == 0)
+  if((suminfo.content.compare("Cpuusage") == 0)
      && suminfo.val > kCpuusage_max)
   {
       std::cerr <<"["<<suminfo.hostname
@@ -13,6 +13,7 @@ void ArgusMonitor::ThresholdAlarm(const SummaryInfo& suminfo)
                 <<"][val= "
                 <<  suminfo.val
                 <<"]"<< std::endl;
+      return;
   }
   if((suminfo.content.compare("Memusage") == 0)
      && suminfo.val > kMemusage_max)
@@ -23,6 +24,7 @@ void ArgusMonitor::ThresholdAlarm(const SummaryInfo& suminfo)
                 <<"][val= "
                 <<  suminfo.val
                 <<"]"<< std::endl;
+      return;
   }
   if((suminfo.content.compare("Diskusage") == 0)
      && suminfo.val > kDiskusage_max)
@@ -33,6 +35,7 @@ void ArgusMonitor::ThresholdAlarm(const SummaryInfo& suminfo)
                 <<"][val= "
                 <<  suminfo.val
                 <<"]"<< std::endl;
+      return;
   }
   if((suminfo.content.compare("LoadAverage") ==0)
      && suminfo.val > kLoadaverage_max)
@@ -43,7 +46,9 @@ void ArgusMonitor::ThresholdAlarm(const SummaryInfo& suminfo)
                 <<"][val= "
                 <<  suminfo.val
                 <<"]"<< std::endl;
+      return;
   }
+      return;
 }
 
 void ArgusMonitor::Monitor(const HostList* host_list_ptr )

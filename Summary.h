@@ -1,9 +1,8 @@
-#include <string>
-
 #ifndef SUMMARY_H
 #define SUMMARY_H
-
+#include <string>
 #include <boost/date_time/posix_time/posix_time.hpp>
+
 typedef struct{
   std::string hostname;
   std::string content;
